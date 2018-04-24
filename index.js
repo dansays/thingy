@@ -275,7 +275,7 @@ class ThingsDate {
 		if (this._isTimeMidnight(datetime)) time = '';
 		if (!this._allowTime) time = '';
 		
-		let isToday = datetime.is().today();
+		let isToday = datetime.between(Date.today(), Date.today().addDays(1));
 		let isEvening = forceEvening || datetime.getHours() > 17;
 		if (isToday && isEvening) date = 'evening';
 
