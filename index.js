@@ -376,7 +376,7 @@ class Autotagger {
 			{ pattern: /^Call /i, tags: 'Calls' },
 			{ pattern: /^Email /i, tags: 'Email' },
 			{ pattern: /^(Drop off|Pick up|Deliver) /i, tags: 'Errands' },
-			{ pattern: /^(Waiting For|WF) /i, tags: 'Waiting For', when: '+1d', deadline: '+1w' },
+			{ pattern: /^(Waiting For|WF) /i, tags: 'Waiting For' },
 			...config
 		];
 		
