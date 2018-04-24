@@ -1,0 +1,15 @@
+{
+  "name": "thingy",
+  "version": "1.0.0",
+  "description": "A custom Drafts 5 action for processing Things tasks",
+  "main": "index.js",
+  "keywords": [
+    "things",
+    "drafts"
+  ],
+  "author": {
+    "name" : "Daniel G. Budiac",
+    "email" : "dan@budi.ac",
+    "url" : "http://dan.budi.ac/"
+  }
+}
