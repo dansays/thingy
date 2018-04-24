@@ -399,6 +399,7 @@ class Autotagger {
 		let attributes = {};
 		entries.forEach(entry => {
 			Object.keys(entry).forEach(key => {
+				if (key == 'pattern') return;
 				this._setProp(attributes, key, entry[key])
 			});
 		});
@@ -483,11 +484,9 @@ class TasksParser {
 			}
 		});
 
-		
 		// Things inserts each task in the array at the top, so
 		// we'll reverse it so it matches the order they were specified.
 		tasks.reverse();
-		
 
 		// Return an array of Things objects
 		return tasks.map(task => task.toThingsObject());
@@ -544,9 +543,9 @@ class TasksParser {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-	let symbolsConfig    = (typeof symbols    !== 'undefined') ? symbols    : {};
-	let autotaggerConfig = (typeof autotagger !== 'undefined') ? autotagger : [];
-	let parser = new TasksParser(symbolsConfig, autotaggerConfig);
+let symbolsConfig    = (typeof symbols    !== 'undefined') ? symbols    : {};
+let autotaggerConfig = (typeof autotagger !== 'undefined') ? autotagger : [];
+let parser = new TasksParser(symbolsConfig, autotaggerConfig);
 
 if (
 	typeof editor !== 'undefined'
