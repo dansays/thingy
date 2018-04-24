@@ -12,7 +12,6 @@ class Task {
 	
 	/**
 	 * Create a things to-do item.
-	 * @param {*} title - The title of the task
 	 * @param {*} autotagger - A reference to an autotagger
 	 */
 	constructor(autotagger) {
