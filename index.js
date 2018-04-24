@@ -207,9 +207,9 @@ class ThingsDate {
 		if (timeOverride) {
 			let time = Date.parse(timeOverride);
 			if (time) {
-				let hours = time.getHours();
-				let minutes = time.getMinutes();
-				dt.set({ hours, minutes });
+				let hour = time.getHours();
+				let minute = time.getMinutes();
+				dt.set({ hour, minute });
 			}
 		}
 
@@ -270,7 +270,7 @@ class ThingsDate {
 	 */
 	_formatThingsDate(datetime, forceEvening) {
 		let date = datetime.toString('yyyy-MM-dd');
-		let time = datetime.toString('HH:mm');
+		let time = datetime.toString('@HH:mm');
 		
 		if (this._isTimeMidnight(datetime)) time = '';
 		if (!this._allowTime) time = '';
