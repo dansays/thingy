@@ -79,25 +79,11 @@ const symbols = {
 // with "Errands"
 
 const autotagger = [{
-	pattern: /\b(Dave|David)\b/i,
-	tags: 'David'
-}, {
-	pattern: /\bMom\b/i,
-	tags: 'Mom'
-}, {
-	pattern: /\bDad\b/i,
-	tags: 'Dad'
-}, {
-	pattern: /\bKathryn\b/i,
-	tags: 'Kathryn'
-}, {
 	pattern: /\b(Whole Foods|grocery store)\b/i,
-	tags: 'Whole Foods',
-	list: 'Health & Fitness'
+	tags: 'Grocery Store'
 }, {
 	pattern: /\b(Duane Reade|drug store|pharmacy)\b/i,
-	tags: 'Duane Reade',
-	list: 'Health & Fitness'
+	tags: 'Pharmacy'
 }, {
 	pattern: /^(Waiting For|WF) /i,
 	when: '+1d',

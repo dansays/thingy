@@ -29,7 +29,7 @@ Mow the hedge 🏷 Home 📁 Landscaping
 Shave the chickens 🏷 Farm 📁 Livestock 📆 Tonight 7pm
 ```
 
-Adding whitespace can make things a bit more readable. The keyboard actions
+Adding whitespace makes things a bit more readable. The keyboard actions
 included in the bundle automatically format properties on a new line, with
 indentation:
 
@@ -91,7 +91,10 @@ const autotagger = [{
 }];
 ```
 
-So, adding a task titled "Waiting for Kathryn to finalize plans for Maui trip" will automatically apply a "Waiting For" tag, a "Kathryn" tag, set the start date to tomorrow, and set a deadline of one week from now. [Boom](https://www.youtube.com/watch?v=Y38Sb3FOYmY).
+So, adding a task titled "Waiting for Kathryn to finalize plans for Maui trip"
+will automatically apply a "Waiting For" tag, a "Kathryn" tag, set the start
+date to tomorrow, and set a deadline of one week from now.
+[Boom](https://www.youtube.com/watch?v=Y38Sb3FOYmY).
 
 ## Date Parser
 

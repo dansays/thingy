@@ -1,15 +1,13 @@
-let prompt = Prompt.create();
+const prompt = Prompt.create();
 prompt.title = 'Select a date...';
-
-let today            = Date.today();
-let tomorrow         = Date.today().addDays(1);
-
-let isTodayFriday    = today.is().friday();
-let isTomorrowFriday = tomorrow.is().friday();
-let isWeekend        = today.is().saturday() || today.is().sunday();
-
 prompt.addButton('Tonight');
 prompt.addButton('Tomorrow');
+
+const today            = Date.today();
+const tomorrow         = Date.today().addDays(1);
+const isTodayFriday    = today.is().friday();
+const isTomorrowFriday = tomorrow.is().friday();
+const isWeekend        = today.is().saturday() || today.is().sunday();
 
 if (!isTodayFriday) {
 	if (isWeekend)								prompt.addButton('Next Friday');
@@ -20,16 +18,17 @@ prompt.addButton(isWeekend ? 'Next Weekend' : 'This Weekend');
 prompt.addButton(isWeekend ? 'Monday' : 'Next Week');
 prompt.addButton('Other...');
 
-let buttonMap = {
-	'Next Week': 'Monday',
-	'This Weekend': 'Saturday',
-	'Next Weekend': 'Next Saturday',
-	'Next Week': 'Monday'
-};
-
 if (prompt.show()) {
-	let date = prompt.buttonPressed;
+	const date = prompt.buttonPressed;
 	if (date == 'Other...') date = '';
+
+	const buttonMap = {
+		'Next Week': 'Monday',
+		'This Weekend': 'Saturday',
+		'Next Weekend': 'Next Saturday',
+		'Next Week': 'Monday'
+	};
+
 	app.setClipboard(buttonMap[date] || date);
 }
 

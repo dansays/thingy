@@ -1,11 +1,118 @@
-/**
- * Thingy
- * @file Things Parser for Drafts 5
- * @author Daniel G. Budiac <dansays@gmail.com>
- * @see {@link https://github.com/dansays/thingy|Github}
-*/
+/** A class representing a Things autotagger */
+export class Autotagger {
 
+	/**
+	 * Create a Things autotagger, including a small default dictionary
+	 * @param {Object} config - An array of objects to add to the dictionary
+	 */
+	constructor(config = []) {
+		this._dictionary = [
+			{ pattern: /^Call /i, tags: 'Calls' },
+			{ pattern: /^Email /i, tags: 'Email' },
+			{ pattern: /^(Drop off|Pick up|Deliver) /i, tags: 'Errands' },
+			{ pattern: /^(Waiting For|WF) /i, tags: 'Waiting For' },
+			...config
+		];
 
+		this._dictionary.forEach(entry => {
+			if (!entry.tags) return;
+			entry.tags = entry.tags.split(',');
+			entry.tags.map(entry => entry.trim());
+		});
+	}
+
+	/**
+	 * Parse a string for matching autotagging entries
+	 * @param {Object} obj - An object containing task attributes
+	 * @return {Object} An object containing updated task attributes
+	 */
+	parse(title) {
+		const entries = [...this._dictionary]
+			.filter(item => item.pattern.test(title));
+
+		let attributes = {};
+		entries.forEach(entry => {
+			Object.keys(entry).forEach(key => {
+				if (key == 'pattern') return;
+				this._setProp(attributes, key, entry[key])
+			});
+		});
+
+		if (attributes.tags) {
+			attributes.tags = attributes.tags.join(',');
+		}
+
+		return attributes;
+	}
+
+	/**
+	 * Update an object property. If the value is an array, push it real good.
+	 * @param {Object} obj - A reference to the source object
+	 * @param {String} prop - The name of the property to set
+	 * @param {Array|String} val - The value of the property to set
+	 * @private
+	 */
+	_setProp(obj, prop, val) {
+		if (Array.isArray(val)) {
+			obj[prop] = obj[prop] || [];
+			obj[prop].push(...val);
+		} else {
+			obj[prop] = val;
+		}
+	}
+
+}
+/** A class representing a symbols dictionary */
+class Symbols {
+
+	/**
+	 * Create a symbols dictionary
+	 * @param {Object} config - An optional object overriding one or
+	 * 		more symbol definitions
+	 */
+	constructor(config = {}) {
+		this._symbols = {
+			tags:          '🏷',
+			list:          '📁',
+			when:          '📆',
+			reminder:      '⏰',
+			deadline:      '⚠️',
+			notes:         '🗒',
+			checklistItem: '🔘'
+		};
+
+		Object.assign(this._symbols, config);
+	}
+
+	/**
+	 * An array of all defined symbols.
+	 * @type {String[]}
+	 */
+	get all() {
+		return Object.values(this._symbols);
+	}
+
+	/**
+	 * Look up a symbol based on an attribute name
+	 * @param {String} type - A valid Things to-do attribute name
+	 * @type {String}
+	 */
+	getSymbol(type) {
+		return this._symbols[type];
+	}
+
+	/**
+	 * Look up an attribute name based on a symbol
+	 * @param {String} symbol - A symbol (emoji)
+	 * @type {String}
+	 */
+	getType(symbol) {
+		let symbols = this._symbols;
+		let keys = Object.keys(symbols);
+		return keys.filter(key => symbols[key] == symbol)[0];
+	}
+
+}
 /** Class representing a single Things to-do item. */
 class Task {
 
@@ -150,11 +257,118 @@ class Task {
 	}
 
 }
+/** A class representing a Things task parser */
+class TasksParser {
 
+	/**
+	 * Create a new Things task parser, generating a symbol
+	 * dictionary and autoparser.
+	 * @param {Object} symbolsConfig - An object defining one or more
+	 *   symbol definitions to override
+	 * @param {Array} autotaggerConfig - An array with supplemental
+	 *   autotagger dictionary items
+	 */
+	constructor(symbolsConfig, autotaggerConfig) {
+		this._symbols = new Symbols(symbolsConfig);
+		this._autotagger = new Autotagger(autotaggerConfig);
+	}
 
-////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Parse a document containing Things tasks, and associated
+	 * attributes decorated by the appropriate Emoji symbols
+	 * @param doc {String} - The document to parse
+	 * @return {Object} An object suitable to pass to the things:/// service
+	 */
+	parse(doc) {
+		// Break inline attribute references into their own lines
+		doc = this._normalizeSymbols(doc);
 
+		// Trim all leading/trailing whitespace from each line
+		doc = this._trimWhitespace(doc);
 
+		let tasks = []; // An array of task objects
+		let task; // The current task object
+
+		doc.split('\n').forEach(line => {
+
+			let item = this._parseLine(line);
+
+			if (item && item.type == 'to-do') {
+				task = new Task(this._autotagger);
+				task.title = item.value;
+				tasks.push(task);
+				return;
+			}
+
+			// If we don't have an active task yet, or the
+			// current line couldn't be parsed, move along.
+			if (!task || !item) return;
+
+			switch(item.type) {
+				case 'tags':           task.addTags(item.value);          break;
+				case 'checklistItem':  task.addChecklistItem(item.value); break;
+				default:               task[item.type] = item.value;
+			}
+		});
+
+		// Things inserts each task in the array at the top, so
+		// we'll reverse it so it matches the order they were specified.
+		tasks.reverse();
+
+		// Return an array of Things objects
+		return tasks.map(task => task.toThingsObject());
+	}
+
+	/**
+	 * Normalize symbol-decorated attributes so they're each on their own line
+	 * @param {String} value - The document to parse
+	 * @return {String} A document with symbol-decorated
+	 *   attributes on their own line
+	 * @private
+	 */
+	_normalizeSymbols(value = '') {
+		let pattern = new RegExp(`(${this._symbols.all.join('|')})`, 'mg');
+		return value.replace(pattern, '\n$1');
+	}
+
+	/**
+	 * Parse a line, mapping its symbol to a property
+	 * @param {String} line - The line to parse
+	 * @return {Object} An object with the parsed property type and value
+	 * @private
+	 */
+	_parseLine(line) {
+		if (!line) return;
+
+		// Lines with no symbol prefix are tasks.
+		if (/^[a-z0-9]/i.test(line)) {
+			return { type: 'to-do', value: line };
+		}
+
+		let allSymbols = this._symbols.all;
+		let propPattern = new RegExp(`^(${allSymbols.join('|')})\s*(.*)$`, 'g');
+		let propMatch = propPattern.exec(line);
+		if (!propMatch || propMatch.length < 3) return;
+
+		return {
+			type: this._symbols.getType(propMatch[1]),
+			value: propMatch[2]
+		};
+	}
+
+	/**
+	 * Trim leading/trailing whitespace from each line of a document
+	 * @param {String} value - The value to trim
+	 * @return {String} A document with no leading or trailing whitespace
+	 * @private
+	 */
+	_trimWhitespace(value = '') {
+		return value
+			.replace(/^\s+(.+)/mg, '$1')
+			.replace(/(.+)\s+$/mg, '$1');
+	}
+
+}
 /** A class representing a date in Things */
 class ThingsDate {
 
@@ -308,11 +522,6 @@ class ThingsDate {
 	}
 
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
 /**
  * A class representing a datetime in Things
  * @extends ThingsDate
@@ -345,252 +554,6 @@ extends ThingsDate {
 	}
 
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-/** A class representing a symbols dictionary */
-class Symbols {
-
-	/**
-	 * Create a symbols dictionary
-	 * @param {Object} config - An optional object overriding one or
-	 * 		more symbol definitions
-	 */
-	constructor(config = {}) {
-		this._symbols = {
-			tags:          '🏷',
-			list:          '📁',
-			when:          '📆',
-			reminder:      '⏰',
-			deadline:      '⚠️',
-			notes:         '🗒',
-			checklistItem: '🔘'
-		};
-
-		Object.assign(this._symbols, config);
-	}
-
-	/**
-	 * An array of all defined symbols.
-	 * @type {String[]}
-	 */
-	get all() {
-		return Object.values(this._symbols);
-	}
-
-	/**
-	 * Look up a symbol based on an attribute name
-	 * @param {String} type - A valid Things to-do attribute name
-	 * @type {String}
-	 */
-	getSymbol(type) {
-		return this._symbols[type];
-	}
-
-	/**
-	 * Look up an attribute name based on a symbol
-	 * @param {String} symbol - A symbol (emoji)
-	 * @type {String}
-	 */
-	getType(symbol) {
-		let symbols = this._symbols;
-		let keys = Object.keys(symbols);
-		return keys.filter(key => symbols[key] == symbol)[0];
-	}
-
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-/** A class representing a Things autotagger */
-class Autotagger {
-
-	/**
-	 * Create a Things autotagger, including a small default dictionary
-	 * @param {Object} config - An array of objects to add to the dictionary
-	 */
-	constructor(config = []) {
-		this._dictionary = [
-			{ pattern: /^Call /i, tags: 'Calls' },
-			{ pattern: /^Email /i, tags: 'Email' },
-			{ pattern: /^(Drop off|Pick up|Deliver) /i, tags: 'Errands' },
-			{ pattern: /^(Waiting For|WF) /i, tags: 'Waiting For' },
-			...config
-		];
-
-		this._dictionary.forEach(entry => {
-			if (!entry.tags) return;
-			entry.tags = entry.tags.split(',');
-			entry.tags.map(entry => entry.trim());
-		});
-	}
-
-	/**
-	 * Parse a string for matching autotagging entries
-	 * @param {Object} obj - An object containing task attributes
-	 * @return {Object} An object containing updated task attributes
-	 */
-	parse(title) {
-		const entries = [...this._dictionary]
-			.filter(item => item.pattern.test(title));
-
-		let attributes = {};
-		entries.forEach(entry => {
-			Object.keys(entry).forEach(key => {
-				if (key == 'pattern') return;
-				this._setProp(attributes, key, entry[key])
-			});
-		});
-
-		if (attributes.tags) {
-			attributes.tags = attributes.tags.join(',');
-		}
-
-		return attributes;
-	}
-
-	/**
-	 * Update an object property. If the value is an array, push it real good.
-	 * @param {Object} obj - A reference to the source object
-	 * @param {String} prop - The name of the property to set
-	 * @param {Array|String} val - The value of the property to set
-	 * @private
-	 */
-	_setProp(obj, prop, val) {
-		if (Array.isArray(val)) {
-			obj[prop] = obj[prop] || [];
-			obj[prop].push(...val);
-		} else {
-			obj[prop] = val;
-		}
-	}
-
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-/** A class representing a Things task parser */
-class TasksParser {
-
-	/**
-	 * Create a new Things task parser, generating a symbol
-	 * dictionary and autoparser.
-	 * @param {Object} symbolsConfig - An object defining one or more
-	 *   symbol definitions to override
-	 * @param {Array} autotaggerConfig - An array with supplemental
-	 *   autotagger dictionary items
-	 */
-	constructor(symbolsConfig, autotaggerConfig) {
-		this._symbols = new Symbols(symbolsConfig);
-		this._autotagger = new Autotagger(autotaggerConfig);
-	}
-
-	/**
-	 * Parse a document containing Things tasks, and associated
-	 * attributes decorated by the appropriate Emoji symbols
-	 * @param doc {String} - The document to parse
-	 * @return {Object} An object suitable to pass to the things:/// service
-	 */
-	parse(doc) {
-		// Break inline attribute references into their own lines
-		doc = this._normalizeSymbols(doc);
-
-		// Trim all leading/trailing whitespace from each line
-		doc = this._trimWhitespace(doc);
-
-		let tasks = []; // An array of task objects
-		let task; // The current task object
-
-		doc.split('\n').forEach(line => {
-
-			let item = this._parseLine(line);
-
-			if (item && item.type == 'to-do') {
-				task = new Task(this._autotagger);
-				task.title = item.value;
-				tasks.push(task);
-				return;
-			}
-
-			// If we don't have an active task yet, or the
-			// current line couldn't be parsed, move along.
-			if (!task || !item) return;
-
-			switch(item.type) {
-				case 'tags':           task.addTags(item.value);          break;
-				case 'checklistItem':  task.addChecklistItem(item.value); break;
-				default:               task[item.type] = item.value;
-			}
-		});
-
-		// Things inserts each task in the array at the top, so
-		// we'll reverse it so it matches the order they were specified.
-		tasks.reverse();
-
-		// Return an array of Things objects
-		return tasks.map(task => task.toThingsObject());
-	}
-
-	/**
-	 * Normalize symbol-decorated attributes so they're each on their own line
-	 * @param {String} value - The document to parse
-	 * @return {String} A document with symbol-decorated
-	 *   attributes on their own line
-	 * @private
-	 */
-	_normalizeSymbols(value = '') {
-		let pattern = new RegExp(`(${this._symbols.all.join('|')})`, 'mg');
-		return value.replace(pattern, '\n$1');
-	}
-
-	/**
-	 * Parse a line, mapping its symbol to a property
-	 * @param {String} line - The line to parse
-	 * @return {Object} An object with the parsed property type and value
-	 * @private
-	 */
-	_parseLine(line) {
-		if (!line) return;
-
-		// Lines with no symbol prefix are tasks.
-		if (/^[a-z0-9]/i.test(line)) {
-			return { type: 'to-do', value: line };
-		}
-
-		let allSymbols = this._symbols.all;
-		let propPattern = new RegExp(`^(${allSymbols.join('|')})\s*(.*)$`, 'g');
-		let propMatch = propPattern.exec(line);
-		if (!propMatch || propMatch.length < 3) return;
-
-		return {
-			type: this._symbols.getType(propMatch[1]),
-			value: propMatch[2]
-		};
-	}
-
-	/**
-	 * Trim leading/trailing whitespace from each line of a document
-	 * @param {String} value - The value to trim
-	 * @return {String} A document with no leading or trailing whitespace
-	 * @private
-	 */
-	_trimWhitespace(value = '') {
-		return value
-			.replace(/^\s+(.+)/mg, '$1')
-			.replace(/(.+)\s+$/mg, '$1');
-	}
-
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
 let symbolsConfig    = (typeof symbols    !== 'undefined') ? symbols    : {};
 let autotaggerConfig = (typeof autotagger !== 'undefined') ? autotagger : [];
 let parser = new TasksParser(symbolsConfig, autotaggerConfig);

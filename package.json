@@ -2,7 +2,10 @@
   "name": "thingy",
   "version": "1.0.0",
   "description": "A custom Drafts 5 action for processing Things tasks",
-  "main": "index.js",
+	"main": "index.js",
+	"scripts": {
+		"build": "rm -rf dist && mkdir dist && cp src/*.js dist/ && cat src/lib/*.js src/add-tasks.js > dist/add-tasks.js"
+	},
   "keywords": [
     "things",
     "drafts"
