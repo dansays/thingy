@@ -78,7 +78,7 @@ You can define your own rules by editing `add-tasks.config.js`. A few examples f
 
 ```javascript
 const autotagger = [{
-  pattern: /^(Waiting For |WF) /i,
+  pattern: /^(Waiting For|WF)\b/i,
   when: '+1d',
   deadline: '+1w'
 }, {
