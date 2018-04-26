@@ -70,7 +70,7 @@ by default:
 3. Tasks beginning with _Drop off_, _Pick up_, or _Deliver_ will be tagged with "Errands"
 4. Tasks beginning with _Waiting For_ or _WF_ will be tagged with "Waiting For"
 
-You can define your own rules by editing `config.js`. A few examples from my own personal setup:
+You can define your own rules by editing `add-tasks.config.js`. A few examples from my own personal setup:
 
 1. Automatically set a default start date (tomorrow) and deadline (in one week) for "waiting for" tasks
 2. Add an agenda tag for tasks mentioning my wife's name
