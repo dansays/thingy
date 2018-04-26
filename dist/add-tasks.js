@@ -1,5 +1,5 @@
 /** A class representing a Things autotagger */
-export class Autotagger {
+class Autotagger {
 
 	/**
 	 * Create a Things autotagger, including a small default dictionary
