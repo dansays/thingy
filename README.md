@@ -10,7 +10,7 @@ Shave the chickens
 ```
 
 Properties can be defined by prefacing the value with an emoji (these can be
-customized by editing `config.js`):
+customized by editing `add-tasks.config.js`):
 
 |    | Property       | Note                                                    |
 |----|----------------|---------------------------------------------------------|
