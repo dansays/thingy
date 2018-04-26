@@ -1,4 +1,2 @@
-node_modules
-node_modules_old
-dist
+out
 .DS_Store
