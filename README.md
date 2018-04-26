@@ -114,3 +114,7 @@ A few things to note:
 	"this evening" section.
 - If a specified time is before 7:00 and lacks an am/pm suffix, it will
   be assumed to be in the evening. No accidental reminders at 5am.
+
+## Installation
+
+An action group is available in the [Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to customize, run `npm run build` to generate the bundled script to import into Drafts.
