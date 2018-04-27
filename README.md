@@ -1,5 +1,13 @@
 # Thingy: A Things Parser for Drafts 5
 
+## Installation
+
+An action group is available for download in the
+[Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to
+customize, run `npm run build` to generate the bundled script to import into Drafts.
+
+## Overview
+
 Like most parsers, multiple tasks can be specified, one task per line:
 
 ```
@@ -63,12 +71,6 @@ Shave the chickens
   📆 Tonight 7pm
   🗒 Remember to use a fresh razor blade!
 ```
-
-## Installation
-
-An action group is available for download in the
-[Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to
-customize, run `npm run build` to generate the bundled script to import into Drafts.
 
 ## Dates
 
