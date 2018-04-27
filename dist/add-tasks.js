@@ -442,6 +442,12 @@ class ThingsDate {
 			}
 		}
 
+		// Sometimes relative dates, like "Monday", are
+		// interpreted as "last Monday". If the date is in the
+		// past, add a week.
+		let isDatePast = this._isDatePast(dt);
+		if (isDatePast) dt.add(1).week();
+
 		// If the time is expressed without an AM/PM suffix,
 		// and it's super early, we probably meant PM.
 		let isTooEarly = this._isTimeEarlyAndAmbiguous(datetime, dt);
@@ -472,6 +478,18 @@ class ThingsDate {
 	_isDateOnlyShorthand(value) {
 		let pattern = /^(someday|anytime)/i;
 		return pattern.test(value);
+	}
+
+	/**
+	 * Test whether a date is in the past
+	 * @param {Date} parsed - The datetime, parsed by DateJS
+	 * @return {boolean} True if the date is in the past
+	 * @private
+	 */
+	_isDatePast(parsed) {
+		let date = parsed.clone().clearTime();
+		let today = Date.today().clearTime();
+		return date.compareTo(today) == -1;
 	}
 
 	/**
