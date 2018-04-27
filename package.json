@@ -1,8 +1,9 @@
 {
   "name": "thingy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A custom Drafts 5 action for processing Things tasks",
 	"main": "index.js",
+	"homepage": "https://actions.getdrafts.com/g/1HG",
 	"scripts": {
 		"build": "rm -rf dist && mkdir dist && cp src/*.js dist/ && cat src/lib/*.js src/add-tasks.js > dist/add-tasks.js"
 	},
@@ -14,5 +15,9 @@
     "name" : "Daniel G. Budiac",
     "email" : "dan@budi.ac",
     "url" : "http://dan.budi.ac/"
+	},
+	"repository" :{
+		"type" : "git",
+  	"url" : "https://github.com/dansays/thingy.git"
   }
 }
