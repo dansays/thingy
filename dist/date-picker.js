@@ -29,7 +29,8 @@ if (prompt.show()) {
 		'Next Week': 'Monday'
 	};
 
-	app.setClipboard(buttonMap[date] || date);
+	draft.setTemplateTag('pickeddate', buttonMap[date] || date);
+	editor.activate();;
 }
 
 else {
