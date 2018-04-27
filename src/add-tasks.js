@@ -1,6 +1,6 @@
-let symbolsConfig    = (typeof symbols    !== 'undefined') ? symbols    : {};
-let autotaggerConfig = (typeof autotagger !== 'undefined') ? autotagger : [];
-let parser = new TasksParser(symbolsConfig, autotaggerConfig);
+let config = getConfig();
+let autotagger = new autotagger(config)
+let parser = new TasksParser(autotagger);
 
 let document = getDocument();
 let data = parser.parse(document);
@@ -15,6 +15,46 @@ if (sent === false) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+const defaultConfig =
+`# Thingy Config
+
+Starts with "Call"   🏷 Calls
+Starts with "Email"  🏷 Email
+Contains "Mom"       🏷 Mom
+Contains "Dad"       🏷 Dad
+
+Starts with "Waiting For|WF"
+  🏷 Waiting For
+  📆 Tomorrow
+  ⚠️ 1 week
+
+Starts with "Drop off|Pick up|Deliver"
+  🏷 Errands
+`;
+
+////////////////////////////////////////////////////////////////////////////////
+
+function getConfig() {
+	let config = Draft.query('# Thingy Config', 'all')
+		.filter(d => !d.isTrashed)
+		.filter(d => d.content.startsWith('# Thingy Config'));
+
+	if (config.length == 0) {
+		config.push(addDefaultConfig());
+	}
+
+	return config
+		.map(draft => draft.content)
+		.join('\n');
+}
+
+function addDefaultConfig() {
+	let config = Draft.create();
+	config.content = defaultConfig;
+	config.update();
+	return config;
+}
 
 function getDocument() {
 	if (typeof editor === 'undefined') return '';
@@ -42,5 +82,5 @@ function cleanup() {
 	draft.addTag('Thingy');
 	draft.update();
 	Draft.create();
-	editor.activate();;
+	editor.activate();
 }

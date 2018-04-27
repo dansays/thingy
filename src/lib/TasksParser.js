@@ -2,16 +2,12 @@
 class TasksParser {
 
 	/**
-	 * Create a new Things task parser, generating a symbol
-	 * dictionary and autoparser.
-	 * @param {Object} symbolsConfig - An object defining one or more
-	 *   symbol definitions to override
-	 * @param {Array} autotaggerConfig - An array with supplemental
-	 *   autotagger dictionary items
+	 * Create a new Things task parser
+	 * @param {Autotagger} autotagger - An autotagger reference
 	 */
-	constructor(symbolsConfig, autotaggerConfig) {
-		this._symbols = new Symbols(symbolsConfig);
-		this._autotagger = new Autotagger(autotaggerConfig);
+	constructor(autotagger) {
+		this._symbols = new Symbols();
+		this._autotagger = autotagger;
 	}
 
 	/**
