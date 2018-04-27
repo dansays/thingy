@@ -64,6 +64,12 @@ Shave the chickens
   🗒 Remember to use a fresh razor blade!
 ```
 
+## Installation
+
+An action group is available for download in the
+[Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to
+customize, run `npm run build` to generate the bundled script to import into Drafts.
+
 ## Autotagger
 
 Tags and other properties can be automatically applied based on [regular
@@ -95,110 +101,49 @@ A few things to note:
 - If a specified time is before 7:00 and lacks an am/pm suffix, it will
   be assumed to be in the evening. We don't want accidental reminders at 5am.
 
-## Installation
+## Autotagger
 
-An action group is available for download in the
-[Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to
-customize, run `npm run build` to generate the bundled script to import into Drafts.
+Tags and other properties can be automatically applied to tasks based on
+pattern-based rules. When you first run the "Add Things Tasks" action, a new
+"Thingy Config" draft note will be placed in your inbox. This note will contain
+a handful of default autotagger rules:
 
-## Custom Autotagger Rules
+```markdown
+# Thingy Config
 
-In addition to the built-in autotagger rules, you can define your own custom
-rules for automatically adding properties to tasks. You'll need to edit a bit
-of Javascript code, but I'll do my best to make it as simple as possible for
-non-programmers.
+Starts with "Call"   🏷 Calls
+Starts with "Email"  🏷 Email
+Contains "Mom"       🏷 Mom
+Contains "Dad"       🏷 Dad
 
-### Adding an Autotagger Rule
+Starts with "Waiting For|WF"
+  🏷 Waiting For
+  📆 Tomorrow
+  ⚠️ 1 week
 
-1. In the "Actions" menu, swipe right on the “Add tasks to Things” action, and
-   select "Edit"
-2. Tap "Steps"
-3. Tap the top script
-4. Tap the "Edit" button
-5. Scroll to the bottom of the script, where you will find an `autotagger`
-   object array
-6. Append an entry to the autotagger object array, with the following signature:
-
-```javascript
-{
-  // More info on regular expressions below...
-  pattern: /^valid reg(ular)? ex(pression)? pattern$/i,
-
-  // These properties are optional, and will overwrite any
-  // values set in previously matched rules...
-  when: 'Saturday',
-  reminder: '2pm',
-  deadline: 'Sunday',
-  notes: 'Yada, yada, yada',
-
-  // These properties are optional, and will append to
-  // any values set in previously matched rules...
-  tags: 'Errands, Grocery Store',
-  checklistItems: [
-    'You can have multiple checklist items...',
-    'Just put them in a string array...',
-    'Like this!'
-  ]
-}
+Starts with "Drop off|Pick up|Deliver"
+  🏷 Errands
 ```
 
-### An Example Autotagger Ruleset
+You can edit or add to these rules as you see fit. Feel free to archive the
+draft if you don't want it cluttering up your inbox... just don't change the
+title. (Side note: You can have multiple config files if you want. Just make
+sure the title starts with "# Thingy Config".)
 
-Here's an annotated, simplified excerpt from my personal autotagger ruleset.
+Autotagger rules are defined just like tasks, but follow a specific notation:
 
-```javascript
-const autotagger = [
+| Syntax                    | Description                             |
+| ------------------------- | --------------------------------------- |
+| `Starts with "Call"`      | Task must start with "Call"             |
+| `Ends with "ASAP"`        | Task must end with "ASAP"               |
+| `Contains "groceries"`    | Task must contain the word "groceries"  |
+| `Matches "^Bug( #\d+)?:"` | Task must match the regular expression  |
+| `All tasks`               | Match all tasks                         |
 
-  // Automatically set a default start date (tomorrow) and deadline
-  // (in one week) for tasks that start with "Waiting For" or "WF"
-  {
-    pattern: /^(Waiting For|WF)\b/i,
-    when: '+1d',
-    deadline: '+1w'
-  },
+All rules are case-insensitive, and all but regular expression rules must be
+anchored against word boundaries. For example, `Starts with "Call"` will
+match "Call Bob", but not "Callously berate Bob for constantly being late".
 
-  // Add an agenda tag for tasks which mention my wife's name
-  {
-    pattern: /\bKathryn\b/i,
-    tags: 'Kathryn'
-  },
-
-  // Add a "Grocery Store" tag to tasks with relevant keywords, and file
-  // them in my "Health & Nutrition" area list.
-  {
-    pattern: /\b(grocery store|Whole Foods|Gristedes)\b/i,
-    tags: 'Grocery Store',
-    list: 'Health & Nutrition'
-  }
-];
-```
-
-The `pattern` property is formatted as a
-[regular expression](http://marvin.cs.uidaho.edu/Handouts/regex.html) (or regex).
-Regular expressions can be quite complicated, but for the most purposes you
-won't need to know much beyond the basics. I'll attempt to offer a simple
-"Regex 101" by way of explaining the first `pattern` in my example:
-`/^(Waiting For|WF)\b/i`. It looks complicated, but it's not that bad:
-
-1. Regular expressions are wrapped in forward slashes, much like strings
-   are wrapped in quotes. The `i` at the end signals that the pattern is
-   case-insensitive, matching regardless of whether the text is upper or
-   lower case.
-2. Next, the `^` symbol anchors the pattern to the beginning of the title.
-   In this case, we want to match only task titles which begin with "waiting for"
-   or "wf", but not those for which the string appears in the middle or at the
-	 end of the string. If you don't care where the phrase occurs, just
-   omit the `^` symbol, but take care to specify a word boundary before your
-	 match phrase (see #4).
-3. The parentheses allow grouping of multiple options, separated by a `|`
-   character. If you're only matching one string, you needn't wrap it in
-   paranthases.
-4. The `\b` indicates a word boundry, which can be either whitespace or
-   punctuation. This allows us to prevent matching patterns which might
-   appear within a word. For example, `/\bcat\b/` would match "cat" but
-   not "catfish" or "tomcat".
-
-So, given my example ruleset: adding a task titled "Waiting for Kathryn to
-finalize plans for Maui trip" will automatically apply a "Waiting For" tag, a
-"Kathryn" tag, set the start date to tomorrow, and set a deadline of one week
-from now. [Boom](https://www.youtube.com/watch?v=Y38Sb3FOYmY).
+Multiple options can be referenced, separated by the `|` character. For example,
+`Contains "groceries|grocery store|Whole Foods"` will match tasks that contain
+"groceries", "grocery store", or "Whole Foods".
