@@ -70,18 +70,7 @@ An action group is available for download in the
 [Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to
 customize, run `npm run build` to generate the bundled script to import into Drafts.
 
-## Autotagger
-
-Tags and other properties can be automatically applied based on [regular
-expressions](http://codular.com/regex). A handful of patterns are defined
-by default, or you can [define your own rules](#custom-autotagger-rules).
-
-1. Tasks beginning with _Call_ will be tagged with "Calls"
-2. Tasks beginning with _Email_ will be tagged with "Email"
-3. Tasks beginning with _Drop off_, _Pick up_, or _Deliver_ will be tagged with "Errands"
-4. Tasks beginning with _Waiting For_ or _WF_ will be tagged with "Waiting For"
-
-## Date Parser
+## Dates
 
 While Things does an admirable job parsing natural language dates, I opted to
 employ DateJS to allow for additional flexibility. Some examples of valid dates:
