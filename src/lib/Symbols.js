@@ -6,18 +6,17 @@ class Symbols {
 	 * @param {Object} config - An optional object overriding one or
 	 * 		more symbol definitions
 	 */
-	constructor(config = {}) {
+	constructor() {
 		this._symbols = {
 			tags:          '🏷',
 			list:          '📁',
 			when:          '📆',
 			reminder:      '⏰',
 			deadline:      '⚠️',
+			heading:       '📌',
 			notes:         '🗒',
 			checklistItem: '🔘'
 		};
-
-		Object.assign(this._symbols, config);
 	}
 
 	/**

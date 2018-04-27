@@ -20,6 +20,7 @@ to facilitate easy entry.
 | 📆 | When           | Can be fuzzy date; including a time will set a reminder |
 | ⏰ | Reminder       | Time only; can also be appended to "when" value         |
 | ⚠️ | Deadline       | Date only, time will be ignored                         |
+| 📌 | Heading        | Heading name (exact; ignored if doesn't exist)          |
 | 🔘 | Checklist item | Can include multiple item definitions                   |
 | 🗒 | Notes          | Ironically, no notes about this                         |
 

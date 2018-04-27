@@ -22,6 +22,10 @@ class Task {
 		this.attributes.deadline = this._deadline.toString();
 	}
 
+	set heading(heading) {
+		this.attributes.heading = heading.trim();
+	}
+
 	/**
 	 * The title or ID of the project or area to add to.
 	 * @type {String}
