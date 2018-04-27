@@ -19,7 +19,7 @@ prompt.addButton(isWeekend ? 'Monday' : 'Next Week');
 prompt.addButton('Other...');
 
 if (prompt.show()) {
-	const date = prompt.buttonPressed;
+	let date = prompt.buttonPressed;
 	if (date == 'Other...') date = '';
 
 	const buttonMap = {
