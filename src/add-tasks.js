@@ -10,7 +10,10 @@ let document = getDocument();
 let data = parser.parse(document);
 let sent = sendToThings(data);
 
-if (sent === false) {
+if (draft.title == config.autotaggerRulesDraftTitle) {
+	alert(`Oops! It looks like you're trying to process your config file.`);
+	context.cancel();
+} else if (sent === false) {
 	context.fail();
 } else if (sent === undefined) {
 	context.cancel('No tasks found');
@@ -21,9 +24,9 @@ if (sent === false) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function getConfig() {
-	let configNote = Draft.query('# Thingy Config', 'all')
-		.filter(d => !d.isTrashed)
-		.filter(d => d.content.startsWith('# Thingy Config'));
+	let configNote = Draft.query(`# ${config.autotaggerRulesDraftTitle}`, 'all')
+		.filter(d => d.content.startsWith(`# ${config.autotaggerRulesDraftTitle}`))
+		.filter(d => !d.isTrashed);
 
 	if (configNote.length == 0) {
 		configNote.push(addDefaultConfig());
@@ -43,6 +46,7 @@ function addDefaultConfig() {
 
 function getDocument() {
 	if (typeof editor === 'undefined') return '';
+	if (draft.title == config.autotaggerRulesDraftTitle) return '';
 	return editor.getSelectedText() || editor.getText();
 }
 
@@ -62,9 +66,10 @@ function sendToThings(data) {
 
 function cleanup() {
 	if (draft.isFlagged) return;
+	if (draft.isArchived) return;
+	if (draft.title == config.autotaggerRulesDraftTitle) return;
 	if (editor.getSelectedText()) return;
 	draft.isTrashed = true;
-	draft.addTag('Thingy');
 	draft.update();
 	Draft.create();
 	editor.activate();

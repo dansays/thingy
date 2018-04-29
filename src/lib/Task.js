@@ -70,14 +70,14 @@ export class Task {
 		let autotagged = this._autotagger.parse(value);
 		if (!autotagged) return;
 
-		let properties = ['list', 'when', 'reminder', 'deadline', 'notes'];
-		properties.forEach(property => {
+		const properties = 'list when reminder deadline notes heading checklistItem';
+		properties.split(' ').forEach(property => {
 			if (!autotagged[property]) return;
 			this[property] = autotagged[property];
 		});
 
 		this.addTags(autotagged.tags || '');
-		this.addChecklistItems(autotagged.checklistItems || []);
+		this.addChecklistItem(autotagged.checklistItem || []);
 	}
 
 	/**
@@ -97,7 +97,9 @@ export class Task {
 	 * @param {String} item - The checklist item to add
 	 */
 	addChecklistItem(item) {
-		this.addChecklistItems([ item.trim() ]);
+		if (item.trim) item = item.trim();
+		if (!Array.isArray(item)) item = [ item ];
+		this.addChecklistItems(item);
 	}
 
 	/**

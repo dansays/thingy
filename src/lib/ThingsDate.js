@@ -1,3 +1,5 @@
+import * as config from '../config';
+
 /** A class representing a date in Things */
 export class ThingsDate {
 
@@ -131,7 +133,8 @@ export class ThingsDate {
 	 */
 	_isTimeEarlyAndAmbiguous(str, parsed) {
 		let hasAmPmSuffix = /\d *[ap]m?\b/i.test(str);
-		let isEarly = parsed.getHours() > 0 && parsed.getHours() < 7;
+		let earliest = config.earliestAmbiguousMorningHour;
+		let isEarly = parsed.getHours() > 0 && parsed.getHours() < earliest;
 		return !hasAmPmSuffix && isEarly;
 	}
 
@@ -162,7 +165,7 @@ export class ThingsDate {
 		if (!this._allowTime) time = '';
 
 		let isToday = datetime.between(Date.today(), Date.today().addDays(1));
-		let isEvening = forceEvening || datetime.getHours() > 17;
+		let isEvening = forceEvening || datetime.getHours() > config.eveningStartsAtHour;
 		if (isToday && isEvening) date = 'evening';
 
 		return date + time;

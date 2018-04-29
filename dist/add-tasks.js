@@ -77,8 +77,18 @@
 "use strict";
 
 // CONCATENATED MODULE: ./src/config.js
+// When times omit an AM/PM suffix and are before this hour,
+// we'll assume PM to avoid early morning alarms.
+const earliestAmbiguousMorningHour = 6;
+
+// When a task date is today, and a reminder is set to a time
+// at this hour or later, we'll file it in the "evening" section.
+const eveningStartsAtHour = 6;
+
+const autotaggerRulesDraftTitle = 'Thingy Config';
+
 const defaultAutotaggerRules =
-`# Thingy Config
+`# ${autotaggerRulesDraftTitle}
 
 Starts with "Call"   🏷 Calls
 Starts with "Email"  🏷 Email
@@ -351,8 +361,10 @@ class Autotagger_Autotagger {
 }
 
 // CONCATENATED MODULE: ./src/lib/ThingsDate.js
+
+
 /** A class representing a date in Things */
-class ThingsDate {
+class ThingsDate_ThingsDate {
 
 	/** Create a new ThingsDate object */
 	constructor() {}
@@ -484,7 +496,8 @@ class ThingsDate {
 	 */
 	_isTimeEarlyAndAmbiguous(str, parsed) {
 		let hasAmPmSuffix = /\d *[ap]m?\b/i.test(str);
-		let isEarly = parsed.getHours() > 0 && parsed.getHours() < 7;
+		let earliest = earliestAmbiguousMorningHour;
+		let isEarly = parsed.getHours() > 0 && parsed.getHours() < earliest;
 		return !hasAmPmSuffix && isEarly;
 	}
 
@@ -515,7 +528,7 @@ class ThingsDate {
 		if (!this._allowTime) time = '';
 
 		let isToday = datetime.between(Date.today(), Date.today().addDays(1));
-		let isEvening = forceEvening || datetime.getHours() > 17;
+		let isEvening = forceEvening || datetime.getHours() > eveningStartsAtHour;
 		if (isToday && isEvening) date = 'evening';
 
 		return date + time;
@@ -530,7 +543,7 @@ class ThingsDate {
  * A class representing a datetime in Things
  * @extends ThingsDate
  * */
-class ThingsDateTime_ThingsDateTime extends ThingsDate {
+class ThingsDateTime_ThingsDateTime extends ThingsDate_ThingsDate {
 
 	/** Create a new ThingsDate object */
 	constructor() {
@@ -572,7 +585,7 @@ class Task_Task {
 	constructor(autotagger) {
 		this._autotagger = autotagger;
 		this._when = new ThingsDateTime_ThingsDateTime();
-		this._deadline = new ThingsDate();
+		this._deadline = new ThingsDate_ThingsDate();
 		this.attributes = { tags: [], 'checklist-items': [] };
 	}
 
@@ -631,14 +644,14 @@ class Task_Task {
 		let autotagged = this._autotagger.parse(value);
 		if (!autotagged) return;
 
-		let properties = ['list', 'when', 'reminder', 'deadline', 'notes'];
-		properties.forEach(property => {
+		const properties = 'list when reminder deadline notes heading checklistItem';
+		properties.split(' ').forEach(property => {
 			if (!autotagged[property]) return;
 			this[property] = autotagged[property];
 		});
 
 		this.addTags(autotagged.tags || '');
-		this.addChecklistItems(autotagged.checklistItems || []);
+		this.addChecklistItem(autotagged.checklistItem || []);
 	}
 
 	/**
@@ -658,7 +671,9 @@ class Task_Task {
 	 * @param {String} item - The checklist item to add
 	 */
 	addChecklistItem(item) {
-		this.addChecklistItems([ item.trim() ]);
+		if (item.trim) item = item.trim();
+		if (!Array.isArray(item)) item = [ item ];
+		this.addChecklistItems(item);
 	}
 
 	/**
@@ -772,7 +787,10 @@ let add_tasks_document = getDocument();
 let data = add_tasks_parser.parse(add_tasks_document);
 let sent = sendToThings(data);
 
-if (sent === false) {
+if (draft.title == autotaggerRulesDraftTitle) {
+	alert(`Oops! It looks like you're trying to process your config file.`);
+	context.cancel();
+} else if (sent === false) {
 	context.fail();
 } else if (sent === undefined) {
 	context.cancel('No tasks found');
@@ -783,9 +801,9 @@ if (sent === false) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function getConfig() {
-	let configNote = Draft.query('# Thingy Config', 'all')
-		.filter(d => !d.isTrashed)
-		.filter(d => d.content.startsWith('# Thingy Config'));
+	let configNote = Draft.query(`# ${autotaggerRulesDraftTitle}`, 'all')
+		.filter(d => d.content.startsWith(`# ${autotaggerRulesDraftTitle}`))
+		.filter(d => !d.isTrashed);
 
 	if (configNote.length == 0) {
 		configNote.push(addDefaultConfig());
@@ -805,6 +823,7 @@ function addDefaultConfig() {
 
 function getDocument() {
 	if (typeof editor === 'undefined') return '';
+	if (draft.title == autotaggerRulesDraftTitle) return '';
 	return editor.getSelectedText() || editor.getText();
 }
 
@@ -824,9 +843,10 @@ function sendToThings(data) {
 
 function cleanup() {
 	if (draft.isFlagged) return;
+	if (draft.isArchived) return;
+	if (draft.title == autotaggerRulesDraftTitle) return;
 	if (editor.getSelectedText()) return;
 	draft.isTrashed = true;
-	draft.addTag('Thingy');
 	draft.update();
 	Draft.create();
 	editor.activate();
