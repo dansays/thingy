@@ -96,11 +96,11 @@ A few things to note:
 
 Tags and other properties can be automatically applied to tasks based on
 pattern-based rules. When you first run the "Add Things Tasks" action, a new
-"Thingy Config" draft note will be placed in your inbox. This note will contain
-a handful of default autotagger rules:
+"Thingy Autotagger Rules" draft note will be placed in your inbox. This note
+will contain a handful of default autotagger rule definitions:
 
 ```markdown
-# Thingy Config
+# Thingy Autotagger Rules
 
 Starts with "Call"   🏷 Calls
 Starts with "Email"  🏷 Email
@@ -119,7 +119,7 @@ Starts with "Drop off|Pick up|Deliver"
 You can edit or add to these rules as you see fit. Feel free to archive the
 draft if you don't want it cluttering up your inbox... just don't change the
 title. (Side note: You can have multiple config files if you want. Just make
-sure the title starts with "# Thingy Config".)
+sure the title starts with "# Thingy Autotagger Rules".)
 
 Autotagger rules are defined just like tasks, but follow a specific notation:
 
