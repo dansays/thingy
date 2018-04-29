@@ -775,7 +775,44 @@ class TasksParser_TasksParser {
 	}
 }
 
+// CONCATENATED MODULE: ./src/lib/Project.js
+class Project {
+
+	constructor(name, tasks) {
+		this._name = name;
+		this._tasks = tasks;
+	}
+
+	toThingsObject() {
+		// Get an array of unique (case-insensitive) headings
+		let headings = this._tasks
+			.filter(item => item.attributes.heading)
+			.map(item => item.attributes.heading)
+			.map(item => ({ value: item, lower: item.toLowerCase() }))
+			.filter((elem, pos, arr) => arr.findIndex(item => item.lower == elem.lower) == pos)
+			.map(item => ({ type: "heading", attributes: { title: item.value } }));
+
+		headings.reverse();
+
+		let tasks = this._tasks.map(task => {
+			task.attributes.list = this._name;
+			return task;
+		});
+
+		return [{
+			type: "project",
+			attributes: {
+				title: this._name,
+				items: headings
+			}
+		}, ...tasks];
+
+	}
+
+}
+
 // CONCATENATED MODULE: ./src/add-tasks.js
+
 
 
 
@@ -786,6 +823,14 @@ let add_tasks_parser = new TasksParser_TasksParser(add_tasks_autotagger);
 
 let add_tasks_document = getDocument();
 let data = add_tasks_parser.parse(add_tasks_document);
+
+let firstLine = add_tasks_document.split('\n')[0];
+if (firstLine.startsWith('#')) {
+	let title = firstLine.substring(1).trim();
+	let project = new Project(title, data);
+	data = project.toThingsObject();
+}
+
 let sent = sendToThings(data);
 
 if (draft.title == autotaggerRulesDraftTitle) {

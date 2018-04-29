@@ -3,7 +3,7 @@
 ## Installation
 
 An action group is available for download in the
-[Drafts Action Directory](https://actions.getdrafts.com/g/1HG). If you wish to
+[Drafts Action Directory](https://actions.getdrafts.com/g/1HW). If you wish to
 customize, run `npm run build` to generate the bundled script to import into Drafts.
 
 ## Overview
@@ -138,3 +138,39 @@ match "Call Bob", but not "Callously berate Bob for constantly being late".
 Multiple options can be referenced, separated by the `|` character. For example,
 `Contains "groceries|grocery store|Whole Foods"` will match tasks that contain
 "groceries", "grocery store", or "Whole Foods".
+
+## Projects
+
+When you give your document a title that begins with a hash mark, your tasks
+will be created as a part of a new project. Any headings referenced in
+task properties will be created. For example:
+
+```markdown
+# Trip to Maui
+
+Pack luggage
+  🏷 Home
+  📌 Packing
+  🔘 Swimsuit
+  🔘 Flip-flops
+  🔘 Sunscreen
+
+Pack carry-on bag
+  🏷 Home
+  📌 Packing
+  🔘 Kindle
+  🔘 iPad
+  🔘 Chargers
+
+Take out the trash
+  🏷 Home
+  📌 Before Leaving
+
+Drop dog off at sitter
+  🏷 Home
+  📌 Before Leaving
+
+Make sure you have your tickets and passport!
+  🏷 Home
+  📌 Before Leaving
+```

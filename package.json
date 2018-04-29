@@ -1,6 +1,6 @@
 {
   "name": "thingy",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A custom Drafts 5 action for processing Things tasks",
   "homepage": "https://actions.getdrafts.com/g/1HG",
   "scripts": {

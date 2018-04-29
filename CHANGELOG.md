@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.0] 2018-04-29
+
+- **[ADDED]** Ability to create a new project
+
 ## [1.1.0] 2018-04-29
 
 - **[CHANGED]**  Autotagger rules are now defined in a Draft note, rather than as regular expressions in code
