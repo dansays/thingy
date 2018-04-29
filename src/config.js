@@ -6,8 +6,8 @@ export const earliestAmbiguousMorningHour = 6;
 // at this hour or later, we'll file it in the "evening" section.
 export const eveningStartsAtHour = 6;
 
-export const autotaggerRulesDraftTitle = 'Thingy Config';
-
+export const autotaggerRulesDraftTitle = 'Thingy Autotagger Rules';
+export const newAutotaggerRulesMessage = `Welcome to Thingy! A draft with a few default Autotagger rules has been added to your inbox. Feel free to customize these as you see fit, and you can archive the draft if you don't want it cluttering up your inbox.`;
 export const defaultAutotaggerRules =
 `# ${autotaggerRulesDraftTitle}
 
@@ -23,4 +23,5 @@ Starts with "Waiting For|WF"
 
 Starts with "Drop off|Pick up|Deliver"
   🏷 Errands
-`
+`;
+

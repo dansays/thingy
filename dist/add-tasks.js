@@ -85,8 +85,8 @@ const earliestAmbiguousMorningHour = 6;
 // at this hour or later, we'll file it in the "evening" section.
 const eveningStartsAtHour = 6;
 
-const autotaggerRulesDraftTitle = 'Thingy Config';
-
+const autotaggerRulesDraftTitle = 'Thingy Autotagger Rules';
+const newAutotaggerRulesMessage = `Welcome to Thingy! A draft with a few default Autotagger rules has been added to your inbox. Feel free to customize these as you see fit, and you can archive the draft if you don't want it cluttering up your inbox.`;
 const defaultAutotaggerRules =
 `# ${autotaggerRulesDraftTitle}
 
@@ -102,7 +102,8 @@ Starts with "Waiting For|WF"
 
 Starts with "Drop off|Pick up|Deliver"
   🏷 Errands
-`
+`;
+
 
 // CONCATENATED MODULE: ./src/lib/StreamParser.js
 /** A class representing a stream parser */
@@ -788,7 +789,7 @@ let data = add_tasks_parser.parse(add_tasks_document);
 let sent = sendToThings(data);
 
 if (draft.title == autotaggerRulesDraftTitle) {
-	alert(`Oops! It looks like you're trying to process your config file.`);
+	alert(`Oops! You probably don't want to add your Autotagger rules as Things tasks.`);
 	context.cancel();
 } else if (sent === false) {
 	context.fail();
@@ -818,6 +819,7 @@ function addDefaultConfig() {
 	let configNote = Draft.create();
 	configNote.content = defaultAutotaggerRules;
 	configNote.update();
+	alert(newAutotaggerRulesMessage);
 	return configNote;
 }
 

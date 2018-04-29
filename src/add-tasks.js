@@ -11,7 +11,7 @@ let data = parser.parse(document);
 let sent = sendToThings(data);
 
 if (draft.title == config.autotaggerRulesDraftTitle) {
-	alert(`Oops! It looks like you're trying to process your config file.`);
+	alert(`Oops! You probably don't want to add your Autotagger rules as Things tasks.`);
 	context.cancel();
 } else if (sent === false) {
 	context.fail();
@@ -41,6 +41,7 @@ function addDefaultConfig() {
 	let configNote = Draft.create();
 	configNote.content = config.defaultAutotaggerRules;
 	configNote.update();
+	alert(config.newAutotaggerRulesMessage);
 	return configNote;
 }
 
