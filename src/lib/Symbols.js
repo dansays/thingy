@@ -1,5 +1,5 @@
 /** A class representing a symbols dictionary */
-class Symbols {
+export class Symbols {
 
 	/**
 	 * Create a symbols dictionary
@@ -7,16 +7,16 @@ class Symbols {
 	 * 		more symbol definitions
 	 */
 	constructor() {
-		this._symbols = {
-			tags:          '🏷',
-			list:          '📁',
-			when:          '📆',
-			reminder:      '⏰',
-			deadline:      '⚠️',
-			heading:       '📌',
-			notes:         '🗒',
-			checklistItem: '🔘'
-		};
+		this._symbols = [
+			{ symbol: '🏷', type: 'tags',          format: 'array'    },
+			{ symbol: '📁', type: 'list',          format: 'string' },
+			{ symbol: '📆', type: 'when',          format: 'string' },
+			{ symbol: '⏰', type: 'reminder',      format: 'string' },
+			{ symbol: '⚠️', type: 'deadline',      format: 'string' },
+			{ symbol: '📌', type: 'heading',       format: 'string' },
+			{ symbol: '🗒', type: 'notes',         format: 'string' },
+			{ symbol: '🔘', type: 'checklistItem', format: 'array'  }
+		];
 	}
 
 	/**
@@ -24,27 +24,40 @@ class Symbols {
 	 * @type {String[]}
 	 */
 	get all() {
-		return Object.values(this._symbols);
+		return this._symbols.map(item => item.symbol);
 	}
 
 	/**
 	 * Look up a symbol based on an attribute name
 	 * @param {String} type - A valid Things to-do attribute name
-	 * @type {String}
+	 * @return {String}
 	 */
 	getSymbol(type) {
-		return this._symbols[type];
+		let item = this._lookup(type)
+		return item && item.symbol;
 	}
 
 	/**
 	 * Look up an attribute name based on a symbol
 	 * @param {String} symbol - A symbol (emoji)
-	 * @type {String}
+	 * @return {String}
 	 */
 	getType(symbol) {
-		let symbols = this._symbols;
-		let keys = Object.keys(symbols);
-		return keys.filter(key => symbols[key] == symbol)[0];
+		let item = this._lookup(symbol);
+		return item && item.type;
+	}
+
+	/**
+	 * Look up a datatype based on a symbol
+	 * @param {String} symbol - A symbol (emoji)
+	 */
+	getFormat(val) {
+		let item = this._lookup(val);
+		return item && item.format;
+	}
+
+	_lookup(val) {
+		return this._symbols.find(item => item.symbol == val || item.type == val);
 	}
 
 }

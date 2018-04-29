@@ -1,322 +1,151 @@
-/** A class representing a Things autotagger */
-class Autotagger {
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */,
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// CONCATENATED MODULE: ./src/config.js
+const defaultAutotaggerRules =
+`# Thingy Config
+
+Starts with "Call"   🏷 Calls
+Starts with "Email"  🏷 Email
+Contains "Mom"       🏷 Mom
+Contains "Dad"       🏷 Dad
+
+Starts with "Waiting For|WF"
+  🏷 Waiting For
+  📆 Tomorrow
+  ⚠️ 1 week
+
+Starts with "Drop off|Pick up|Deliver"
+  🏷 Errands
+`
+
+// CONCATENATED MODULE: ./src/lib/StreamParser.js
+/** A class representing a stream parser */
+class StreamParser {
 
 	/**
-	 * Create a Things autotagger, including a small default dictionary
-	 * @param {Object} config - An array of objects to add to the dictionary
+	 * Create a new stream parser
+	 * @param symbols {Symbols} - A symbol dictionary object
 	 */
-	constructor(config = []) {
-		this._dictionary = [
-			{ pattern: /^Call /i, tags: 'Calls' },
-			{ pattern: /^Email /i, tags: 'Email' },
-			{ pattern: /^(Drop off|Pick up|Deliver) /i, tags: 'Errands' },
-			{ pattern: /^(Waiting For|WF) /i, tags: 'Waiting For' },
-			...config
-		];
-
-		this._dictionary.forEach(entry => {
-			if (!entry.tags) return;
-			entry.tags = entry.tags.split(',');
-			entry.tags.map(entry => entry.trim());
-		});
+	constructor(symbols) {
+		this._symbols = symbols;
 	}
 
 	/**
-	 * Parse a string for matching autotagging entries
-	 * @param {Object} obj - An object containing task attributes
-	 * @return {Object} An object containing updated task attributes
-	 */
-	parse(title) {
-		const entries = [...this._dictionary]
-			.filter(item => item.pattern.test(title));
-
-		let attributes = {};
-		entries.forEach(entry => {
-			Object.keys(entry).forEach(key => {
-				if (key == 'pattern') return;
-				this._setProp(attributes, key, entry[key])
-			});
-		});
-
-		if (attributes.tags) {
-			attributes.tags = attributes.tags.join(',');
-		}
-
-		return attributes;
-	}
-
-	/**
-	 * Update an object property. If the value is an array, push it real good.
-	 * @param {Object} obj - A reference to the source object
-	 * @param {String} prop - The name of the property to set
-	 * @param {Array|String} val - The value of the property to set
-	 * @private
-	 */
-	_setProp(obj, prop, val) {
-		if (Array.isArray(val)) {
-			obj[prop] = obj[prop] || [];
-			obj[prop].push(...val);
-		} else {
-			obj[prop] = val;
-		}
-	}
-
-}
-/** A class representing a symbols dictionary */
-class Symbols {
-
-	/**
-	 * Create a symbols dictionary
-	 * @param {Object} config - An optional object overriding one or
-	 * 		more symbol definitions
-	 */
-	constructor(config = {}) {
-		this._symbols = {
-			tags:          '🏷',
-			list:          '📁',
-			when:          '📆',
-			reminder:      '⏰',
-			deadline:      '⚠️',
-			notes:         '🗒',
-			checklistItem: '🔘'
-		};
-
-		Object.assign(this._symbols, config);
-	}
-
-	/**
-	 * An array of all defined symbols.
-	 * @type {String[]}
-	 */
-	get all() {
-		return Object.values(this._symbols);
-	}
-
-	/**
-	 * Look up a symbol based on an attribute name
-	 * @param {String} type - A valid Things to-do attribute name
-	 * @type {String}
-	 */
-	getSymbol(type) {
-		return this._symbols[type];
-	}
-
-	/**
-	 * Look up an attribute name based on a symbol
-	 * @param {String} symbol - A symbol (emoji)
-	 * @type {String}
-	 */
-	getType(symbol) {
-		let symbols = this._symbols;
-		let keys = Object.keys(symbols);
-		return keys.filter(key => symbols[key] == symbol)[0];
-	}
-
-}
-/** Class representing a single Things to-do item. */
-class Task {
-
-	/**
-	 * Create a Things to-do item.
-	 * @param {Autotagger} autotagger - A reference to an autotagger
-	 */
-	constructor(autotagger) {
-		this._autotagger = autotagger;
-		this._when = new ThingsDateTime();
-		this._deadline = new ThingsDate();
-		this.attributes = { tags: [], 'checklist-items': [] };
-	}
-
-	/**
-	 * The deadline to apply to the to-do. Relative dates are
-	 * parsed with the DateJS library.
-	 * @type {String}
-	 */
-	set deadline(date) {
-		this._deadline.date = date;
-		this.attributes.deadline = this._deadline.toString();
-	}
-
-	/**
-	 * The title or ID of the project or area to add to.
-	 * @type {String}
-	 */
-	set list(nameOrId) {
-		let prop = this._isItemId(nameOrId) ? 'list-id' : 'list';
-		this.attributes[prop] = nameOrId.trim();
-	}
-
-	/**
-	 * The text to use for the notes field of the to-do.
-	 * @type {String}
-	 */
-	set notes(notes) {
-		this.attributes.notes = notes.trim();
-	}
-
-	/**
-	 * The time to set for the task reminder. Overrides any time
-	 * specified in "when". Fuzzy times are parsed with the
-	 * DateJS library.
-	 * @type {String}
-	 */
-	set reminder(time) {
-		this._when.timeOverride = time.trim();
-		this.attributes.when = this._when.toString();
-	}
-
-	/**
-	 * The title of the to-do. Value will be parsed by the
-	 * autotagger, matching the string against a dictionary
-	 * of regular expressions and auto-applying attributes
-	 * for all matches.
-	 * @type {String}
-	 */
-	set title(value) {
-		this.attributes.title = value.trim();
-
-		let autotagged = this._autotagger.parse(value);
-		if (!autotagged) return;
-
-		let properties = ['list', 'when', 'reminder', 'deadline', 'notes'];
-		properties.forEach(property => {
-			if (!autotagged[property]) return;
-			this[property] = autotagged[property];
-		});
-
-		this.addTags(autotagged.tags || '');
-		this.addChecklistItems(autotagged.checklistItems || []);
-	}
-
-	/**
-	 * The start date of the to-do. Values can be "today",
-	 * "tomorrow", "evening", "tonight", "anytime", "someday",
-	 * or a fuzzy date string with an optional time value,
-	 * which will add a reminder.
-	 * @type {String}
-	 */
-	set when(value) {
-		this._when.datetime = value.trim();
-		this.attributes.when = this._when.toString();
-	}
-
-	/**
-	 * Add a checklist item to the to-do.
-	 * @param {String} item - The checklist item to add
-	 */
-	addChecklistItem(item) {
-		this.addChecklistItems([ item.trim() ]);
-	}
-
-	/**
-	 * Add an array of checklist items to the to-do
-	 * @param {String[]} items - An array of checklist items to add
-	 */
-	addChecklistItems(items = []) {
-		items = items
-			.filter(item => item.length > 0)
-			.map(item => ({
-				type: 'checklist-item',
-				attributes: { title: item.trim() }
-			}));
-
-		this.attributes['checklist-items'].push(...items);
-	}
-
-	/**
-	 * Add one or more tags to the to-do, separated by commas.
-	 * Tags that do not already exist will be ignored.
-	 * @param {String} tagCsvList - A comma-separated list of one or more tags
-	 */
-	addTags(tagCsvList) {
-		let tagArr = tagCsvList.split(',').map(tag => tag.trim());
-		this.attributes.tags.push(...tagArr);
-	}
-
-	/**
-	 * Export the current to-do, with all defined attributes,
-	 * as an object to be passed to the things:/// URL scheme.
-	 * @see {@link https://support.culturedcode.com/customer/en/portal/articles/2803573#json|Things API documentation}
-	 * @return {Object} An object suitable to pass to the things:/// service
-	 */
-	toThingsObject() {
-		return {
-			type: 'to-do',
-			attributes: this.attributes
-		};
-	}
-
-	/**
-	 * Test whether a string is a things item ID
-	 * @param {String} value - The item name or id to test
-	 * @private
-	 */
-	_isItemId(value) {
-		const pattern = /^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/img;
-		return pattern.test(value);
-	}
-
-}
-/** A class representing a Things task parser */
-class TasksParser {
-
-	/**
-	 * Create a new Things task parser, generating a symbol
-	 * dictionary and autoparser.
-	 * @param {Object} symbolsConfig - An object defining one or more
-	 *   symbol definitions to override
-	 * @param {Array} autotaggerConfig - An array with supplemental
-	 *   autotagger dictionary items
-	 */
-	constructor(symbolsConfig, autotaggerConfig) {
-		this._symbols = new Symbols(symbolsConfig);
-		this._autotagger = new Autotagger(autotaggerConfig);
-	}
-
-	/**
-	 * Parse a document containing Things tasks, and associated
-	 * attributes decorated by the appropriate Emoji symbols
+	 * Parse a stream containing items and associated attributes
+	 * decorated by Emoji symbols
 	 * @param doc {String} - The document to parse
 	 * @return {Object} An object suitable to pass to the things:/// service
 	 */
-	parse(doc) {
-		// Break inline attribute references into their own lines
-		doc = this._normalizeSymbols(doc);
+	parse(stream) {
+		stream = this._normalizeSymbols(stream);
+		stream = this._trimWhitespace(stream);
 
-		// Trim all leading/trailing whitespace from each line
-		doc = this._trimWhitespace(doc);
+		let all = []; // An array of task objects
+		let current; // The current task object
 
-		let tasks = []; // An array of task objects
-		let task; // The current task object
-
-		doc.split('\n').forEach(line => {
-
+		stream.split('\n').forEach(line => {
 			let item = this._parseLine(line);
+			if (!item) return;
 
-			if (item && item.type == 'to-do') {
-				task = new Task(this._autotagger);
-				task.title = item.value;
-				tasks.push(task);
-				return;
+			if (item.type == 'title') {
+				current = {};
+				all.push(current);
 			}
 
-			// If we don't have an active task yet, or the
-			// current line couldn't be parsed, move along.
-			if (!task || !item) return;
-
-			switch(item.type) {
-				case 'tags':           task.addTags(item.value);          break;
-				case 'checklistItem':  task.addChecklistItem(item.value); break;
-				default:               task[item.type] = item.value;
+			switch (item.format) {
+				case 'array':
+					current[item.type] = current[item.type] || [];
+					current[item.type].push(item.value.trim());
+					break;
+				case 'csv':
+					current[item.type] = [
+						...(current[item.value] || '').split(','),
+						...item.value.split(',')
+					].map(item => item.trim()).filter(item => item.length > 0);
+					break;
+				default:
+					current[item.type] = item.value.trim();
 			}
+
 		});
 
-		// Things inserts each task in the array at the top, so
-		// we'll reverse it so it matches the order they were specified.
-		tasks.reverse();
-
-		// Return an array of Things objects
-		return tasks.map(task => task.toThingsObject());
+		return all;
 	}
 
 	/**
@@ -342,7 +171,7 @@ class TasksParser {
 
 		// Lines with no symbol prefix are tasks.
 		if (/^[a-z0-9]/i.test(line)) {
-			return { type: 'to-do', value: line };
+			return { type: 'title', value: line };
 		}
 
 		let allSymbols = this._symbols.all;
@@ -352,6 +181,7 @@ class TasksParser {
 
 		return {
 			type: this._symbols.getType(propMatch[1]),
+			format: this._symbols.getFormat(propMatch[1]),
 			value: propMatch[2]
 		};
 	}
@@ -369,6 +199,158 @@ class TasksParser {
 	}
 
 }
+
+// CONCATENATED MODULE: ./src/lib/Symbols.js
+/** A class representing a symbols dictionary */
+class Symbols {
+
+	/**
+	 * Create a symbols dictionary
+	 * @param {Object} config - An optional object overriding one or
+	 * 		more symbol definitions
+	 */
+	constructor() {
+		this._symbols = [
+			{ symbol: '🏷', type: 'tags',          format: 'array'    },
+			{ symbol: '📁', type: 'list',          format: 'string' },
+			{ symbol: '📆', type: 'when',          format: 'string' },
+			{ symbol: '⏰', type: 'reminder',      format: 'string' },
+			{ symbol: '⚠️', type: 'deadline',      format: 'string' },
+			{ symbol: '📌', type: 'heading',       format: 'string' },
+			{ symbol: '🗒', type: 'notes',         format: 'string' },
+			{ symbol: '🔘', type: 'checklistItem', format: 'array'  }
+		];
+	}
+
+	/**
+	 * An array of all defined symbols.
+	 * @type {String[]}
+	 */
+	get all() {
+		return this._symbols.map(item => item.symbol);
+	}
+
+	/**
+	 * Look up a symbol based on an attribute name
+	 * @param {String} type - A valid Things to-do attribute name
+	 * @return {String}
+	 */
+	getSymbol(type) {
+		let item = this._lookup(type)
+		return item && item.symbol;
+	}
+
+	/**
+	 * Look up an attribute name based on a symbol
+	 * @param {String} symbol - A symbol (emoji)
+	 * @return {String}
+	 */
+	getType(symbol) {
+		let item = this._lookup(symbol);
+		return item && item.type;
+	}
+
+	/**
+	 * Look up a datatype based on a symbol
+	 * @param {String} symbol - A symbol (emoji)
+	 */
+	getFormat(val) {
+		let item = this._lookup(val);
+		return item && item.format;
+	}
+
+	_lookup(val) {
+		return this._symbols.find(item => item.symbol == val || item.type == val);
+	}
+
+}
+
+// CONCATENATED MODULE: ./src/lib/Autotagger.js
+
+
+
+/** A class representing a Things autotagger */
+class Autotagger_Autotagger {
+
+	/**
+	 * Create a Things autotagger, including a small default dictionary
+	 * @param {Object} config - An array of objects to add to the dictionary
+	 */
+	constructor(config) {
+		let symbols = new Symbols();
+		let parser = new StreamParser(symbols);
+		let stream = parser.parse(config);
+
+		this._dictionary = stream.map(item => {
+			let rule = { pattern: this._parsePattern(item.title), ...item };
+			delete rule.title;
+			return rule;
+		}).filter(item => !!item.pattern);
+
+	}
+
+	/**
+	 * Parse a string for matching autotagging entries
+	 * @param {Object} obj - An object containing task attributes
+	 * @return {Object} An object containing updated task attributes
+	 */
+	parse(title) {
+		const entries = [...this._dictionary]
+			.filter(item => item.pattern.test(title));
+
+		let attributes = {};
+		entries.forEach(entry => {
+			Object.keys(entry).forEach(key => {
+				if (key == 'pattern') return;
+				this._setProp(attributes, key, entry[key])
+			});
+		});
+
+		return attributes;
+	}
+
+	_parsePattern(title) {
+		if (title.trim().toLowerCase() == 'all tasks') return /.+/;
+
+		let pattern = /^(Starts with|Ends with|Contains|Matches) +"(.*)"$/i;
+		let matches = pattern.exec(title);
+		if (!matches || matches.length < 3) return;
+		let regex = matches[2];
+		let escaped = this._escapeRegex(matches[2]);
+
+		switch (matches[1].toLowerCase()) {
+			case 'starts with': return new RegExp(`^(${escaped})\\b`, 'i');
+			case 'ends with':   return new RegExp(`\\b(${escaped})$`, 'i');
+			case 'contains':    return new RegExp(`\\b(${escaped})\\b`, 'i');
+			case 'matches':     return new RegExp(regex, 'i');
+		}
+	}
+
+	_escapeRegex(value) {
+		// Ommitting | since it'll be our delimiter
+		let pattern = /[\\{}()[\]^$+*?.]/g;
+		return value.replace(pattern, '\\$&');
+	}
+
+	/**
+	 * Update an object property. If the value is an array, push it real good.
+	 * @param {Object} obj - A reference to the source object
+	 * @param {String} prop - The name of the property to set
+	 * @param {Array|String} val - The value of the property to set
+	 * @private
+	 */
+	_setProp(obj, prop, val) {
+		if (Array.isArray(val)) {
+			obj[prop] = obj[prop] || [];
+			obj[prop].push(...val);
+		} else {
+			obj[prop] = val;
+		}
+	}
+
+}
+
+// CONCATENATED MODULE: ./src/lib/ThingsDate.js
 /** A class representing a date in Things */
 class ThingsDate {
 
@@ -540,12 +522,15 @@ class ThingsDate {
 	}
 
 }
+
+// CONCATENATED MODULE: ./src/lib/ThingsDateTime.js
+
+
 /**
  * A class representing a datetime in Things
  * @extends ThingsDate
  * */
-class ThingsDateTime
-extends ThingsDate {
+class ThingsDateTime_ThingsDateTime extends ThingsDate {
 
 	/** Create a new ThingsDate object */
 	constructor() {
@@ -572,12 +557,219 @@ extends ThingsDate {
 	}
 
 }
-let symbolsConfig    = (typeof symbols    !== 'undefined') ? symbols    : {};
-let autotaggerConfig = (typeof autotagger !== 'undefined') ? autotagger : [];
-let parser = new TasksParser(symbolsConfig, autotaggerConfig);
 
-let document = getDocument();
-let data = parser.parse(document);
+// CONCATENATED MODULE: ./src/lib/Task.js
+
+
+
+/** Class representing a single Things to-do item. */
+class Task_Task {
+
+	/**
+	 * Create a Things to-do item.
+	 * @param {Autotagger} autotagger - A reference to an autotagger
+	 */
+	constructor(autotagger) {
+		this._autotagger = autotagger;
+		this._when = new ThingsDateTime_ThingsDateTime();
+		this._deadline = new ThingsDate();
+		this.attributes = { tags: [], 'checklist-items': [] };
+	}
+
+	/**
+	 * The deadline to apply to the to-do. Relative dates are
+	 * parsed with the DateJS library.
+	 * @type {String}
+	 */
+	set deadline(date) {
+		this._deadline.date = date;
+		this.attributes.deadline = this._deadline.toString();
+	}
+
+	set heading(heading) {
+		this.attributes.heading = heading.trim();
+	}
+
+	/**
+	 * The title or ID of the project or area to add to.
+	 * @type {String}
+	 */
+	set list(nameOrId) {
+		let prop = this._isItemId(nameOrId) ? 'list-id' : 'list';
+		this.attributes[prop] = nameOrId.trim();
+	}
+
+	/**
+	 * The text to use for the notes field of the to-do.
+	 * @type {String}
+	 */
+	set notes(notes) {
+		this.attributes.notes = notes.trim();
+	}
+
+	/**
+	 * The time to set for the task reminder. Overrides any time
+	 * specified in "when". Fuzzy times are parsed with the
+	 * DateJS library.
+	 * @type {String}
+	 */
+	set reminder(time) {
+		this._when.timeOverride = time.trim();
+		this.attributes.when = this._when.toString();
+	}
+
+	/**
+	 * The title of the to-do. Value will be parsed by the
+	 * autotagger, matching the string against a dictionary
+	 * of regular expressions and auto-applying attributes
+	 * for all matches.
+	 * @type {String}
+	 */
+	set title(value) {
+		this.attributes.title = value.trim();
+
+		let autotagged = this._autotagger.parse(value);
+		if (!autotagged) return;
+
+		let properties = ['list', 'when', 'reminder', 'deadline', 'notes'];
+		properties.forEach(property => {
+			if (!autotagged[property]) return;
+			this[property] = autotagged[property];
+		});
+
+		this.addTags(autotagged.tags || '');
+		this.addChecklistItems(autotagged.checklistItems || []);
+	}
+
+	/**
+	 * The start date of the to-do. Values can be "today",
+	 * "tomorrow", "evening", "tonight", "anytime", "someday",
+	 * or a fuzzy date string with an optional time value,
+	 * which will add a reminder.
+	 * @type {String}
+	 */
+	set when(value) {
+		this._when.datetime = value.trim();
+		this.attributes.when = this._when.toString();
+	}
+
+	/**
+	 * Add a checklist item to the to-do.
+	 * @param {String} item - The checklist item to add
+	 */
+	addChecklistItem(item) {
+		this.addChecklistItems([ item.trim() ]);
+	}
+
+	/**
+	 * Add an array of checklist items to the to-do
+	 * @param {String[]} items - An array of checklist items to add
+	 */
+	addChecklistItems(items = []) {
+		items = items
+			.filter(item => item.length > 0)
+			.map(item => ({
+				type: 'checklist-item',
+				attributes: { title: item.trim() }
+			}));
+
+		this.attributes['checklist-items'].push(...items);
+	}
+
+	/**
+	 * Add one or more tags to the to-do, separated by commas.
+	 * Tags that do not already exist will be ignored.
+	 * @param {String|String[]} tags - An array or comma-separated list of one or more tags
+	 */
+	addTags(tags) {
+		if (typeof tags == 'string') tags = tags.split(',');
+		this.attributes.tags.push(...tags.map(tag => tag.trim()));
+	}
+
+	/**
+	 * Export the current to-do, with all defined attributes,
+	 * as an object to be passed to the things:/// URL scheme.
+	 * @see {@link https://support.culturedcode.com/customer/en/portal/articles/2803573#json|Things API documentation}
+	 * @return {Object} An object suitable to pass to the things:/// service
+	 */
+	toThingsObject() {
+		return {
+			type: 'to-do',
+			attributes: this.attributes
+		};
+	}
+
+	/**
+	 * Test whether a string is a things item ID
+	 * @param {String} value - The item name or id to test
+	 * @private
+	 */
+	_isItemId(value) {
+		const pattern = /^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/img;
+		return pattern.test(value);
+	}
+
+}
+
+// CONCATENATED MODULE: ./src/lib/TasksParser.js
+
+
+
+
+/** A class representing a Things task parser */
+class TasksParser_TasksParser {
+
+	/**
+	 * Create a new Things task parser
+	 * @param {Autotagger} autotagger - An autotagger reference
+	 */
+	constructor(autotagger) {
+		this._symbols = new Symbols();
+		this._streamParser = new StreamParser(this._symbols);
+		this._autotagger = autotagger;
+	}
+
+	/**
+	 * Parse a document containing Things tasks, and associated
+	 * attributes decorated by the appropriate Emoji symbols
+	 * @param stream {String} - The document to parse
+	 * @return {Object} An object suitable to pass to the things:/// service
+	 */
+	parse(stream) {
+
+		let items = this._streamParser.parse(stream);
+		let tasks = items.map(item => {
+			let task = new Task_Task(this._autotagger);
+			Object.keys(item).forEach(attr => {
+				switch(attr) {
+					case 'tags': task.addTags(item[attr]); break;
+					case 'checklistItem': task.addChecklistItem(item[attr]); break;
+					default: task[attr] = item[attr];
+				}
+			});
+			return task;
+		})
+
+		// Things inserts each task in the array at the top, so
+		// we'll reverse it so it matches the order they were specified.
+		tasks.reverse();
+
+		// Return an array of Things objects
+		return tasks.map(task => task.toThingsObject());
+	}
+}
+
+// CONCATENATED MODULE: ./src/add-tasks.js
+
+
+
+
+let add_tasks_configNote = getConfig();
+let add_tasks_autotagger = new Autotagger_Autotagger(add_tasks_configNote)
+let add_tasks_parser = new TasksParser_TasksParser(add_tasks_autotagger);
+
+let add_tasks_document = getDocument();
+let data = add_tasks_parser.parse(add_tasks_document);
 let sent = sendToThings(data);
 
 if (sent === false) {
@@ -589,6 +781,27 @@ if (sent === false) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+function getConfig() {
+	let configNote = Draft.query('# Thingy Config', 'all')
+		.filter(d => !d.isTrashed)
+		.filter(d => d.content.startsWith('# Thingy Config'));
+
+	if (configNote.length == 0) {
+		configNote.push(addDefaultConfig());
+	}
+
+	return configNote
+		.map(draft => draft.content)
+		.join('\n');
+}
+
+function addDefaultConfig() {
+	let configNote = Draft.create();
+	configNote.content = defaultAutotaggerRules;
+	configNote.update();
+	return configNote;
+}
 
 function getDocument() {
 	if (typeof editor === 'undefined') return '';
@@ -616,5 +829,9 @@ function cleanup() {
 	draft.addTag('Thingy');
 	draft.update();
 	Draft.create();
-	editor.activate();;
+	editor.activate();
 }
+
+
+/***/ })
+/******/ ]);

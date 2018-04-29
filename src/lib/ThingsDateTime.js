@@ -1,9 +1,10 @@
+import { ThingsDate } from './ThingsDate';
+
 /**
  * A class representing a datetime in Things
  * @extends ThingsDate
  * */
-class ThingsDateTime
-extends ThingsDate {
+export class ThingsDateTime extends ThingsDate {
 
 	/** Create a new ThingsDate object */
 	constructor() {

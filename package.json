@@ -2,22 +2,26 @@
   "name": "thingy",
   "version": "1.0.2",
   "description": "A custom Drafts 5 action for processing Things tasks",
-	"main": "index.js",
-	"homepage": "https://actions.getdrafts.com/g/1HG",
-	"scripts": {
-		"build": "rm -rf dist && mkdir dist && cp src/*.js dist/ && cat src/lib/*.js src/add-tasks.js > dist/add-tasks.js"
-	},
+  "homepage": "https://actions.getdrafts.com/g/1HG",
+  "scripts": {
+    "build": "npx webpack",
+    "watch": "npx webpack --watch"
+  },
   "keywords": [
     "things",
     "drafts"
   ],
   "author": {
-    "name" : "Daniel G. Budiac",
-    "email" : "dan@budi.ac",
-    "url" : "http://dan.budi.ac/"
-	},
-	"repository" :{
-		"type" : "git",
-  	"url" : "https://github.com/dansays/thingy.git"
+    "name": "Daniel G. Budiac",
+    "email": "dan@budi.ac",
+    "url": "http://dan.budi.ac/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dansays/thingy.git"
+  },
+  "devDependencies": {
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.15"
   }
 }

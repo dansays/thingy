@@ -1,5 +1,9 @@
-let config = getConfig();
-let autotagger = new autotagger(config)
+import * as config from './config';
+import { Autotagger } from './lib/Autotagger';
+import { TasksParser } from './lib/TasksParser';
+
+let configNote = getConfig();
+let autotagger = new Autotagger(configNote)
 let parser = new TasksParser(autotagger);
 
 let document = getDocument();
@@ -16,44 +20,25 @@ if (sent === false) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const defaultConfig =
-`# Thingy Config
-
-Starts with "Call"   🏷 Calls
-Starts with "Email"  🏷 Email
-Contains "Mom"       🏷 Mom
-Contains "Dad"       🏷 Dad
-
-Starts with "Waiting For|WF"
-  🏷 Waiting For
-  📆 Tomorrow
-  ⚠️ 1 week
-
-Starts with "Drop off|Pick up|Deliver"
-  🏷 Errands
-`;
-
-////////////////////////////////////////////////////////////////////////////////
-
 function getConfig() {
-	let config = Draft.query('# Thingy Config', 'all')
+	let configNote = Draft.query('# Thingy Config', 'all')
 		.filter(d => !d.isTrashed)
 		.filter(d => d.content.startsWith('# Thingy Config'));
 
-	if (config.length == 0) {
-		config.push(addDefaultConfig());
+	if (configNote.length == 0) {
+		configNote.push(addDefaultConfig());
 	}
 
-	return config
+	return configNote
 		.map(draft => draft.content)
 		.join('\n');
 }
 
 function addDefaultConfig() {
-	let config = Draft.create();
-	config.content = defaultConfig;
-	config.update();
-	return config;
+	let configNote = Draft.create();
+	configNote.content = config.defaultAutotaggerRules;
+	configNote.update();
+	return configNote;
 }
 
 function getDocument() {

@@ -1,5 +1,5 @@
 /** A class representing a date in Things */
-class ThingsDate {
+export class ThingsDate {
 
 	/** Create a new ThingsDate object */
 	constructor() {}

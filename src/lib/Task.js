@@ -1,5 +1,8 @@
+import { ThingsDate } from './ThingsDate';
+import { ThingsDateTime } from './ThingsDateTime';
+
 /** Class representing a single Things to-do item. */
-class Task {
+export class Task {
 
 	/**
 	 * Create a Things to-do item.
@@ -115,11 +118,11 @@ class Task {
 	/**
 	 * Add one or more tags to the to-do, separated by commas.
 	 * Tags that do not already exist will be ignored.
-	 * @param {String} tagCsvList - A comma-separated list of one or more tags
+	 * @param {String|String[]} tags - An array or comma-separated list of one or more tags
 	 */
-	addTags(tagCsvList) {
-		let tagArr = tagCsvList.split(',').map(tag => tag.trim());
-		this.attributes.tags.push(...tagArr);
+	addTags(tags) {
+		if (typeof tags == 'string') tags = tags.split(',');
+		this.attributes.tags.push(...tags.map(tag => tag.trim()));
 	}
 
 	/**

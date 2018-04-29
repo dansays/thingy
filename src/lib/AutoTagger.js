@@ -1,24 +1,24 @@
+import { StreamParser } from './StreamParser';
+import { Symbols } from './Symbols';
+
 /** A class representing a Things autotagger */
-class Autotagger {
+export class Autotagger {
 
 	/**
 	 * Create a Things autotagger, including a small default dictionary
 	 * @param {Object} config - An array of objects to add to the dictionary
 	 */
-	constructor(config = []) {
-		this._dictionary = [
-			{ pattern: /^Call /i, tags: 'Calls' },
-			{ pattern: /^Email /i, tags: 'Email' },
-			{ pattern: /^(Drop off|Pick up|Deliver) /i, tags: 'Errands' },
-			{ pattern: /^(Waiting For|WF) /i, tags: 'Waiting For' },
-			...config
-		];
+	constructor(config) {
+		let symbols = new Symbols();
+		let parser = new StreamParser(symbols);
+		let stream = parser.parse(config);
 
-		this._dictionary.forEach(entry => {
-			if (!entry.tags) return;
-			entry.tags = entry.tags.split(',');
-			entry.tags.map(entry => entry.trim());
-		});
+		this._dictionary = stream.map(item => {
+			let rule = { pattern: this._parsePattern(item.title), ...item };
+			delete rule.title;
+			return rule;
+		}).filter(item => !!item.pattern);
+
 	}
 
 	/**
@@ -38,11 +38,30 @@ class Autotagger {
 			});
 		});
 
-		if (attributes.tags) {
-			attributes.tags = attributes.tags.join(',');
-		}
-
 		return attributes;
+	}
+
+	_parsePattern(title) {
+		if (title.trim().toLowerCase() == 'all tasks') return /.+/;
+
+		let pattern = /^(Starts with|Ends with|Contains|Matches) +"(.*)"$/i;
+		let matches = pattern.exec(title);
+		if (!matches || matches.length < 3) return;
+		let regex = matches[2];
+		let escaped = this._escapeRegex(matches[2]);
+
+		switch (matches[1].toLowerCase()) {
+			case 'starts with': return new RegExp(`^(${escaped})\\b`, 'i');
+			case 'ends with':   return new RegExp(`\\b(${escaped})$`, 'i');
+			case 'contains':    return new RegExp(`\\b(${escaped})\\b`, 'i');
+			case 'matches':     return new RegExp(regex, 'i');
+		}
+	}
+
+	_escapeRegex(value) {
+		// Ommitting | since it'll be our delimiter
+		let pattern = /[\\{}()[\]^$+*?.]/g;
+		return value.replace(pattern, '\\$&');
 	}
 
 	/**
