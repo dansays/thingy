@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0] 2018-04-29
+
+- **[CHANGED]**  Autotagger rules are now defined in a Draft note, rather than as regular expressions in code
+- **[ADDED]**    Ability to assign a header to a task
+
 ## [1.0.2] 2018-04-27
 
 - **[FIXED]**    Date picker runtime error when "other" selected (#1)
