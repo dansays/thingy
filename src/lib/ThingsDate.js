@@ -58,6 +58,14 @@ export class ThingsDate {
 		// Reformat as "+2 weeks".
 		datetime = datetime.replace(/^in\s+(\d)/i, '+$1');
 
+		// Offset shorthand
+		let offset = this._parseOffset(datetime);
+		let dateOffset = 0;
+		if (offset) {
+			datetime = offset.datetime;
+			dateOffset = offset.offset;
+		}
+
 		// Parse the date with DateJS. If it's invalid, just pass
 		// the raw value and let Things take a crack at it.
 		let dt = Date.parse(datetime);
@@ -83,6 +91,9 @@ export class ThingsDate {
 		// and it's super early, we probably meant PM.
 		let isTooEarly = this._isTimeEarlyAndAmbiguous(datetime, dt);
 		if (isTooEarly) dt.add(12).hours();
+
+		// Process date offset
+		if (dateOffset != 0) dt.add(dateOffset).days();
 
 		// Return a date- or datetime-formatted string that
 		// Things will understand.
@@ -136,6 +147,13 @@ export class ThingsDate {
 		let earliest = config.earliestAmbiguousMorningHour;
 		let isEarly = parsed.getHours() > 0 && parsed.getHours() < earliest;
 		return !hasAmPmSuffix && isEarly;
+	}
+
+	_parseOffset(str) {
+		let pattern = /^(.+)\s([+-]\d+)$/;
+		let match = pattern.exec(str);
+		if (!match) return;
+		return { datetime: match[1], offset: parseInt(match[2]) };
 	}
 
 	/**
