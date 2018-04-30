@@ -201,4 +201,5 @@ Take out the trash before leaving for [[City]]
 ```
 
 Note that template tag names are case sensitive, and can only contain letters,
-numbers, spaces, and underscores.
+numbers, spaces, and underscores. Thingy will not prompt you for values for
+any [built-in Drafts template tags](https://agiletortoise.zendesk.com/hc/en-us/articles/202843484-Templates-and-Tags).
