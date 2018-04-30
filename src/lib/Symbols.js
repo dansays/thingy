@@ -8,7 +8,7 @@ export class Symbols {
 	 */
 	constructor() {
 		this._symbols = [
-			{ symbol: '🏷', type: 'tags',          format: 'array'    },
+			{ symbol: '🏷', type: 'tags',          format: 'csv'    },
 			{ symbol: '📁', type: 'list',          format: 'string' },
 			{ symbol: '📆', type: 'when',          format: 'string' },
 			{ symbol: '⏰', type: 'reminder',      format: 'string' },

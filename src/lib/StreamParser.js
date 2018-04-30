@@ -40,7 +40,7 @@ export class StreamParser {
 					current[item.type] = [
 						...(current[item.value] || '').split(','),
 						...item.value.split(',')
-					].map(item => item.trim()).filter(item => item.length > 0);
+					].map(item => item.trim()).filter(item => item.length > 0).join(',');
 					break;
 				default:
 					current[item.type] = item.value.trim();

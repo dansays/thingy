@@ -169,7 +169,7 @@ class StreamParser {
 					current[item.type] = [
 						...(current[item.value] || '').split(','),
 						...item.value.split(',')
-					].map(item => item.trim()).filter(item => item.length > 0);
+					].map(item => item.trim()).filter(item => item.length > 0).join(',');
 					break;
 				default:
 					current[item.type] = item.value.trim();
@@ -243,7 +243,7 @@ class Symbols {
 	 */
 	constructor() {
 		this._symbols = [
-			{ symbol: '🏷', type: 'tags',          format: 'array'    },
+			{ symbol: '🏷', type: 'tags',          format: 'csv'    },
 			{ symbol: '📁', type: 'list',          format: 'string' },
 			{ symbol: '📆', type: 'when',          format: 'string' },
 			{ symbol: '⏰', type: 'reminder',      format: 'string' },
