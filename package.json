@@ -2,7 +2,7 @@
   "name": "thingy",
   "version": "1.3.0",
   "description": "A custom Drafts 5 action for processing Things tasks",
-  "homepage": "https://actions.getdrafts.com/g/1HG",
+  "homepage": "https://actions.getdrafts.com/g/1HW",
   "scripts": {
     "build": "npx webpack",
     "watch": "npx webpack --watch"
