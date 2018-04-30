@@ -1,8 +1,13 @@
 # Changelog
 
+## [1.3.0] 2018-04-30
+
+- **[ADDED]**    Template tag processing
+- **[ADDED]**    Simple date offset notation
+
 ## [1.2.0] 2018-04-29
 
-- **[ADDED]** Ability to create a new project
+- **[ADDED]**    Ability to create a new project
 
 ## [1.1.0] 2018-04-29
 

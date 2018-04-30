@@ -84,6 +84,10 @@ employ DateJS to allow for additional flexibility. Some examples of valid dates:
 - July
 - Someday
 
+Any date can be offset by appending `+4` or `-7` to the string. This will
+add 4 days, or subtract 7 days, from the parsed date. (It may not seem very
+useful, but it comes in handy when processing templates. Keep reading.)
+
 A few things to note:
 
 - If only a time is specified, today's date will be assumed
@@ -174,3 +178,26 @@ Make sure you have your tickets and passport!
   🏷 Home
   📌 Before Leaving
 ```
+
+## Template Tags
+
+Thingy will scan your document for template tags, and prompt you for
+values before processing. This comes in handy when combined with project
+templates:
+
+```
+# Pack for trip to [[City]]
+
+Pack luggage for trip to [[City]]
+  🏷 Home
+  📆 [[Departure Date]] -3
+  ⚠️ [[Departure Date]] -1
+
+Take out the trash before leaving for [[City]]
+  🏷 Home
+  📆 [[Departure Date]]
+  ⚠️ [[Departure Date]]
+```
+
+Note that template tag names are case sensitive, and can only contain letters,
+numbers, spaces, and underscores.
