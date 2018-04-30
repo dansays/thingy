@@ -183,8 +183,8 @@ Make sure you have your tickets and passport!
 ## Template Tags
 
 Thingy will scan your document for template tags, and prompt you for
-values before processing. This comes in handy when combined with project
-templates and date offsets:
+values before processing. This comes in handy when combined with
+[project templates](#projects) and [date offsets](#dates):
 
 ```
 # Pack for trip to [[City]]
