@@ -86,7 +86,8 @@ employ DateJS to allow for additional flexibility. Some examples of valid dates:
 
 Any date can be offset by appending `+4` or `-7` to the string. This will
 add 4 days, or subtract 7 days, from the parsed date. (It may not seem very
-useful, but it comes in handy when processing templates. Keep reading.)
+useful, but it comes in handy when [processing template tags](#template-tags).
+Keep reading.)
 
 A few things to note:
 
@@ -183,7 +184,7 @@ Make sure you have your tickets and passport!
 
 Thingy will scan your document for template tags, and prompt you for
 values before processing. This comes in handy when combined with project
-templates:
+templates and date offsets:
 
 ```
 # Pack for trip to [[City]]
