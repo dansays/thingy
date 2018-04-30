@@ -25,3 +25,24 @@ Starts with "Drop off|Pick up|Deliver"
   🏷 Errands
 `;
 
+export const reservedTemplateTags = [
+	'body',
+	'clipboard',
+	'created_latitude',
+	'created_longitude',
+	'created',
+	'date',
+	'draft_open_url',
+	'draft',
+	'latitude',
+	'longitude',
+	'modified_latitude',
+	'modified_longitude',
+	'modified',
+	'selection_length',
+	'selection_start',
+	'selection',
+	'time',
+	'title',
+	'uuid'
+];

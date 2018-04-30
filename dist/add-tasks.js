@@ -104,6 +104,27 @@ Starts with "Drop off|Pick up|Deliver"
   🏷 Errands
 `;
 
+const reservedTemplateTags = [
+	'body',
+	'clipboard',
+	'created_latitude',
+	'created_longitude',
+	'created',
+	'date',
+	'draft_open_url',
+	'draft',
+	'latitude',
+	'longitude',
+	'modified_latitude',
+	'modified_longitude',
+	'modified',
+	'selection_length',
+	'selection_start',
+	'selection',
+	'time',
+	'title',
+	'uuid'
+];
 
 // CONCATENATED MODULE: ./src/lib/StreamParser.js
 /** A class representing a stream parser */
@@ -822,6 +843,12 @@ let add_tasks_autotagger = new Autotagger_Autotagger(add_tasks_configNote)
 let add_tasks_parser = new TasksParser_TasksParser(add_tasks_autotagger);
 
 let add_tasks_document = getDocument();
+let add_tasks_tags = getTemplateTags(add_tasks_document);
+if (add_tasks_tags.length > 0) {
+	let tagVals = askTemplateQuestions(add_tasks_tags);
+	add_tasks_document = setTemplateTags(add_tasks_document, tagVals);
+}
+
 let data = add_tasks_parser.parse(add_tasks_document);
 
 let firstLine = add_tasks_document.split('\n')[0];
@@ -897,6 +924,34 @@ function cleanup() {
 	draft.update();
 	Draft.create();
 	editor.activate();
+}
+
+function getTemplateTags(doc) {
+	let pattern = /\[\[([\w ]+)\]\]/g;
+	let tags = [];
+	let match;
+
+	while (match = pattern.exec(doc)) {
+		let name = match[1];
+		if (tags.indexOf(name) >= 0) continue;
+		if (reservedTemplateTags.indexOf(name) >= 0) contiue;
+		tags.push(match[1]);
+	}
+
+	return tags;
+}
+
+function askTemplateQuestions(tags) {
+	let prompt = Prompt.create();
+	prompt.title = 'Template Questions';
+	tags.forEach(tag => prompt.addTextField(tag, tag, ''));
+	prompt.addButton('Okay');
+	return prompt.show() && prompt.fieldValues;
+}
+
+function setTemplateTags(doc, tags) {
+	Object.keys(tags).forEach(tag => draft.setTemplateTag(tag, tags[tag]));
+	return draft.processTemplate(doc);
 }
 
 
