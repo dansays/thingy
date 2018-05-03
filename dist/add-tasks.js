@@ -225,7 +225,7 @@ var earliestAmbiguousMorningHour = 6; // When a task date is today, and a remind
 // at this hour or later, we'll file it in the "evening" section.
 
 exports.earliestAmbiguousMorningHour = earliestAmbiguousMorningHour;
-var eveningStartsAtHour = 6;
+var eveningStartsAtHour = 18;
 exports.eveningStartsAtHour = eveningStartsAtHour;
 var autotaggerRulesDraftTitle = 'Thingy Autotagger Rules';
 exports.autotaggerRulesDraftTitle = autotaggerRulesDraftTitle;
