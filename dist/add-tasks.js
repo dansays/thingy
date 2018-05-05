@@ -735,10 +735,7 @@ function () {
           }
         });
         return task;
-      }); // Things inserts each task in the array at the top, so
-      // we'll reverse it so it matches the order they were specified.
-
-      tasks.reverse(); // Return an array of Things objects
+      }); // Return an array of Things objects
 
       return tasks.map(function (task) {
         return task.toThingsObject();
@@ -1359,8 +1356,6 @@ function () {
           }
         };
       });
-
-      headings.reverse();
 
       var tasks = this._tasks.map(function (task) {
         task.attributes.list = _this._name;

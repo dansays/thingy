@@ -1,8 +1,12 @@
 # Changelog
 
+## [1.3.2] 2018-05-04
+
+- **[FIXED]**    Remove task order reversal step after Things bug fix
+
 ## [1.3.1] 2018-05-03
 
-- **[FIXED]**		Fix premature reminder time-based "This Evening" filing
+- **[FIXED]**		 Fix premature reminder time-based "This Evening" filing
 
 ## [1.3.0] 2018-04-30
 

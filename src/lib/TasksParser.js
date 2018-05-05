@@ -36,10 +36,6 @@ export class TasksParser {
 			return task;
 		})
 
-		// Things inserts each task in the array at the top, so
-		// we'll reverse it so it matches the order they were specified.
-		tasks.reverse();
-
 		// Return an array of Things objects
 		return tasks.map(task => task.toThingsObject());
 	}
