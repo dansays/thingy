@@ -99,7 +99,7 @@ function getTemplateTags(doc) {
 	while (match = pattern.exec(doc)) {
 		let name = match[1];
 		if (tags.indexOf(name) >= 0) continue;
-		if (config.reservedTemplateTags.indexOf(name) >= 0) contiue;
+		if (config.reservedTemplateTags.indexOf(name) >= 0) continue;
 		tags.push(match[1]);
 	}
 
