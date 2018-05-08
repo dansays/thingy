@@ -28,5 +28,7 @@
     "webpack": "^4.6.0",
     "webpack-cli": "^2.0.15"
   },
-  "dependencies": {}
+  "dependencies": {
+    "drafts-template-parser": "^1.0.1"
+  }
 }

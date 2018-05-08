@@ -78,11 +78,13 @@
 
 var config = _interopRequireWildcard(__webpack_require__(1));
 
-var _Autotagger = __webpack_require__(2);
+var _draftsTemplateParser = __webpack_require__(2);
 
-var _TasksParser = __webpack_require__(5);
+var _Autotagger = __webpack_require__(3);
 
-var _Project = __webpack_require__(9);
+var _TasksParser = __webpack_require__(6);
+
+var _Project = __webpack_require__(10);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
@@ -90,13 +92,9 @@ var configNote = getConfig();
 var autotagger = new _Autotagger.Autotagger(configNote);
 var parser = new _TasksParser.TasksParser(autotagger);
 var document = getDocument();
-var tags = getTemplateTags(document);
-
-if (tags.length > 0) {
-  var tagVals = askTemplateQuestions(tags);
-  document = setTemplateTags(document, tagVals);
-}
-
+var templateParser = new _draftsTemplateParser.TemplateTagParser(document);
+templateParser.ask();
+document = templateParser.parse(document).text;
 var data = parser.parse(document);
 var firstLine = document.split('\n')[0];
 
@@ -176,38 +174,6 @@ function cleanup() {
   editor.activate();
 }
 
-function getTemplateTags(doc) {
-  var pattern = /\[\[([\w ]+)\]\]/g;
-  var tags = [];
-  var match;
-
-  while (match = pattern.exec(doc)) {
-    var name = match[1];
-    if (tags.indexOf(name) >= 0) continue;
-    if (config.reservedTemplateTags.indexOf(name) >= 0) contiue;
-    tags.push(match[1]);
-  }
-
-  return tags;
-}
-
-function askTemplateQuestions(tags) {
-  var prompt = Prompt.create();
-  prompt.title = 'Template Questions';
-  tags.forEach(function (tag) {
-    return prompt.addTextField(tag, tag, '');
-  });
-  prompt.addButton('Okay');
-  return prompt.show() && prompt.fieldValues;
-}
-
-function setTemplateTags(doc, tags) {
-  Object.keys(tags).forEach(function (tag) {
-    return draft.setTemplateTag(tag, tags[tag]);
-  });
-  return draft.processTemplate(doc);
-}
-
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -238,6 +204,80 @@ exports.reservedTemplateTags = reservedTemplateTags;
 
 /***/ }),
 /* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TemplateTagParser", function() { return TemplateTagParser; });
+class TemplateTagParser {
+	
+	constructor(template = draft.content) {
+		this.template = template;
+	}
+
+	get tags() {
+		const reservedTags = [
+			'body',
+			'clipboard',
+			'created_latitude',
+			'created_longitude',
+			'created',
+			'date',
+			'draft_open_url',
+			'draft',
+			'latitude',
+			'longitude',
+			'modified_latitude',
+			'modified_longitude',
+			'modified',
+			'selection_length',
+			'selection_start',
+			'selection',
+			'time',
+			'title',
+			'uuid',
+		];		
+
+		const pattern = /\[\[([\w ]+)\]\]/g;
+		let tags = new Set();
+		let match;
+
+		while (match = pattern.exec(this.template)) {
+			tags.add(match[1]);
+		}
+		
+		return Array.from(tags)
+			.filter(tag => !reservedTags.includes(tag));
+	}
+	
+	ask() {
+		let tags = this.tags;
+		if (tags.length == 0) return true;
+		
+		let prompt = Prompt.create();
+		prompt.title = 'Template Questions';
+		tags.forEach(tag => prompt.addTextField(tag, tag, ''));
+		prompt.addButton('Okay');
+
+		if (!prompt.show()) return false;
+		tags.forEach(tag => {
+			draft.setTemplateTag(tag, prompt.fieldValues[tag]);
+			console.log(`Setting ${tag} to ${prompt.fieldValues[tag]}`);
+		});
+		
+		return true;
+	}
+	
+	parse(str) {
+		let text = draft.processTemplate(str);
+		let html = MultiMarkdown.create().render(text);
+		return { text, html };
+	}
+}
+
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -248,9 +288,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Autotagger = void 0;
 
-var _StreamParser = __webpack_require__(3);
+var _StreamParser = __webpack_require__(4);
 
-var _Symbols = __webpack_require__(4);
+var _Symbols = __webpack_require__(5);
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -384,7 +424,7 @@ function () {
 exports.Autotagger = Autotagger;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -536,7 +576,7 @@ function () {
 exports.StreamParser = StreamParser;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -665,7 +705,7 @@ function () {
 exports.Symbols = Symbols;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -676,11 +716,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TasksParser = void 0;
 
-var _Symbols = __webpack_require__(4);
+var _Symbols = __webpack_require__(5);
 
-var _StreamParser = __webpack_require__(3);
+var _StreamParser = __webpack_require__(4);
 
-var _Task = __webpack_require__(6);
+var _Task = __webpack_require__(7);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -749,7 +789,7 @@ function () {
 exports.TasksParser = TasksParser;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -760,9 +800,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Task = void 0;
 
-var _ThingsDate = __webpack_require__(7);
+var _ThingsDate = __webpack_require__(8);
 
-var _ThingsDateTime = __webpack_require__(8);
+var _ThingsDateTime = __webpack_require__(9);
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -977,7 +1017,7 @@ function () {
 exports.Task = Task;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1213,7 +1253,7 @@ function () {
 exports.ThingsDate = ThingsDate;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1224,7 +1264,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ThingsDateTime = void 0;
 
-var _ThingsDate2 = __webpack_require__(7);
+var _ThingsDate2 = __webpack_require__(8);
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -1294,7 +1334,7 @@ function (_ThingsDate) {
 exports.ThingsDateTime = ThingsDateTime;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

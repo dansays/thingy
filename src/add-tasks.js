@@ -1,4 +1,5 @@
 import * as config from './config';
+import { TemplateTagParser } from 'drafts-template-parser';
 import { Autotagger } from './lib/Autotagger';
 import { TasksParser } from './lib/TasksParser';
 import { Project } from './lib/Project';
@@ -8,11 +9,10 @@ let autotagger = new Autotagger(configNote)
 let parser = new TasksParser(autotagger);
 
 let document = getDocument();
-let tags = getTemplateTags(document);
-if (tags.length > 0) {
-	let tagVals = askTemplateQuestions(tags);
-	document = setTemplateTags(document, tagVals);
-}
+let templateParser = new TemplateTagParser(document);
+
+templateParser.ask();
+document = templateParser.parse(document).text;
 
 let data = parser.parse(document);
 
@@ -89,32 +89,4 @@ function cleanup() {
 	draft.update();
 	Draft.create();
 	editor.activate();
-}
-
-function getTemplateTags(doc) {
-	let pattern = /\[\[([\w ]+)\]\]/g;
-	let tags = [];
-	let match;
-
-	while (match = pattern.exec(doc)) {
-		let name = match[1];
-		if (tags.indexOf(name) >= 0) continue;
-		if (config.reservedTemplateTags.indexOf(name) >= 0) contiue;
-		tags.push(match[1]);
-	}
-
-	return tags;
-}
-
-function askTemplateQuestions(tags) {
-	let prompt = Prompt.create();
-	prompt.title = 'Template Questions';
-	tags.forEach(tag => prompt.addTextField(tag, tag, ''));
-	prompt.addButton('Okay');
-	return prompt.show() && prompt.fieldValues;
-}
-
-function setTemplateTags(doc, tags) {
-	Object.keys(tags).forEach(tag => draft.setTemplateTag(tag, tags[tag]));
-	return draft.processTemplate(doc);
 }
