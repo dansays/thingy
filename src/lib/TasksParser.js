@@ -30,6 +30,7 @@ export class TasksParser {
 				switch(attr) {
 					case 'tags': task.addTags(item[attr]); break;
 					case 'checklistItem': task.addChecklistItem(item[attr]); break;
+					case 'notes': task.appendNotes(item[attr]); break;
 					default: task[attr] = item[attr];
 				}
 			});
