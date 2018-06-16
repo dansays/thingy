@@ -1,6 +1,6 @@
 import * as config from './config';
 import { TemplateTagParser } from 'drafts-template-parser';
-import { Autotagger } from './lib/Autotagger';
+import { Autotagger } from './lib/AutoTagger';
 import { TasksParser } from './lib/TasksParser';
 import { Project } from './lib/Project';
 
