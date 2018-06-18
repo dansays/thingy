@@ -80,7 +80,7 @@ var config = _interopRequireWildcard(__webpack_require__(1));
 
 var _draftsTemplateParser = __webpack_require__(2);
 
-var _Autotagger = __webpack_require__(3);
+var _AutoTagger = __webpack_require__(3);
 
 var _TasksParser = __webpack_require__(6);
 
@@ -89,7 +89,7 @@ var _Project = __webpack_require__(10);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 var configNote = getConfig();
-var autotagger = new _Autotagger.Autotagger(configNote);
+var autotagger = new _AutoTagger.Autotagger(configNote);
 var parser = new _TasksParser.TasksParser(autotagger);
 var document = getDocument();
 var templateParser = new _draftsTemplateParser.TemplateTagParser(document);
@@ -632,7 +632,7 @@ function () {
     }, {
       symbol: '🗒',
       type: 'notes',
-      format: 'string'
+      format: 'array'
     }, {
       symbol: '🔘',
       type: 'checklistItem',
@@ -770,6 +770,10 @@ function () {
               task.addChecklistItem(item[attr]);
               break;
 
+            case 'notes':
+              task.appendNotes(item[attr]);
+              break;
+
             default:
               task[attr] = item[attr];
           }
@@ -898,6 +902,22 @@ function () {
       })));
     }
     /**
+     * Appends a new line to the notes.
+     * @param {String|String[]} notes - An array or single string of notes
+     */
+
+  }, {
+    key: "appendNotes",
+    value: function appendNotes(notes) {
+      if (typeof notes == 'string') notes = [notes];
+
+      if (this.attributes.notes) {
+        this.attributes.notes += '\n' + notes.join('\n');
+      } else {
+        this.attributes.notes = notes.join('\n');
+      }
+    }
+    /**
      * Export the current to-do, with all defined attributes,
      * as an object to be passed to the things:/// URL scheme.
      * @see {@link https://support.culturedcode.com/customer/en/portal/articles/2803573#json|Things API documentation}
@@ -987,13 +1007,14 @@ function () {
       var autotagged = this._autotagger.parse(value);
 
       if (!autotagged) return;
-      var properties = 'list when reminder deadline notes heading checklistItem';
+      var properties = 'list when reminder deadline heading checklistItem';
       properties.split(' ').forEach(function (property) {
         if (!autotagged[property]) return;
         _this[property] = autotagged[property];
       });
       this.addTags(autotagged.tags || '');
       this.addChecklistItem(autotagged.checklistItem || []);
+      this.appendNotes(autotagged.notes || '');
     }
     /**
      * The start date of the to-do. Values can be "today",
