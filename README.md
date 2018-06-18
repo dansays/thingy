@@ -21,16 +21,16 @@ If you select text in a draft, only that text will be processed. Properties can
 be defined by prefacing the value with an emoji. Keyboard actions are provided
 to facilitate easy entry.
 
-|    | Property       | Note                                                    |
-|----|----------------|---------------------------------------------------------|
-| 🏷 | Tags           | One or more, separated by commas                        |
-| 📁 | List           | Must be exact project or area name or ID                |
-| 📆 | When           | Can be fuzzy date; including a time will set a reminder |
-| ⏰ | Reminder       | Time only; can also be appended to "when" value         |
-| ⚠️ | Deadline       | Date only, time will be ignored                         |
-| 📌 | Heading        | Heading name (exact; ignored if doesn't exist)          |
-| 🔘 | Checklist item | Can include multiple item definitions                   |
-| 🗒 | Notes          | Ironically, no notes about this                         |
+|    | Property       | Note                                                        |
+|----|----------------|-------------------------------------------------------------|
+| 🏷 | Tags           | One or more, separated by commas                            |
+| 📁 | List           | Must be exact project or area name or ID                    |
+| 📆 | When           | Can be fuzzy date; including a time will set a reminder     |
+| ⏰ | Reminder       | Time only; can also be appended to "when" value             |
+| ⚠️ | Deadline       | Date only, time will be ignored                             |
+| 📌 | Heading        | Heading name (exact; ignored if doesn't exist)              |
+| 🔘 | Checklist item | Can include multiple item definitions                       |
+| 🗒 | Notes          | Can include multiple notes, which will render as paragraphs |
 
 So now our tasks can have tags, be assigned to lists, and given notes, dates,
 and checklist items:
