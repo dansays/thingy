@@ -135,9 +135,9 @@ export class Task {
 	appendNotes(notes) {
 	    if (typeof notes == 'string') notes = [notes];
 	    if (this.attributes.notes) {
-	        this.attributes.notes += '\n' + notes.join('\n');
+	        this.attributes.notes += '\n\n' + notes.join('\n\n');
 	    } else {
-	        this.attributes.notes = notes.join('\n');
+	        this.attributes.notes = notes.join('\n\n');
 	    }
 	}
 

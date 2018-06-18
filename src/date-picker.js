@@ -1,5 +1,6 @@
 const prompt = Prompt.create();
 prompt.title = 'Select a date...';
+prompt.addButton('Today');
 prompt.addButton('Tonight');
 prompt.addButton('Tomorrow');
 
