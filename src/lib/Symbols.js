@@ -14,7 +14,7 @@ export class Symbols {
 			{ symbol: '⏰', type: 'reminder',      format: 'string' },
 			{ symbol: '⚠️', type: 'deadline',      format: 'string' },
 			{ symbol: '📌', type: 'heading',       format: 'string' },
-			{ symbol: '🗒', type: 'notes',         format: 'string' },
+			{ symbol: '🗒', type: 'notes',         format: 'array' },
 			{ symbol: '🔘', type: 'checklistItem', format: 'array'  }
 		];
 	}

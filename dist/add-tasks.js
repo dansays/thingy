@@ -78,25 +78,23 @@
 
 var config = _interopRequireWildcard(__webpack_require__(1));
 
-var _Autotagger = __webpack_require__(2);
+var _draftsTemplateParser = __webpack_require__(2);
 
-var _TasksParser = __webpack_require__(5);
+var _AutoTagger = __webpack_require__(3);
 
-var _Project = __webpack_require__(9);
+var _TasksParser = __webpack_require__(6);
+
+var _Project = __webpack_require__(10);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 var configNote = getConfig();
-var autotagger = new _Autotagger.Autotagger(configNote);
+var autotagger = new _AutoTagger.Autotagger(configNote);
 var parser = new _TasksParser.TasksParser(autotagger);
 var document = getDocument();
-var tags = getTemplateTags(document);
-
-if (tags.length > 0) {
-  var tagVals = askTemplateQuestions(tags);
-  document = setTemplateTags(document, tagVals);
-}
-
+var templateParser = new _draftsTemplateParser.TemplateTagParser(document);
+templateParser.ask();
+document = templateParser.parse(document).text;
 var data = parser.parse(document);
 var firstLine = document.split('\n')[0];
 
@@ -184,7 +182,7 @@ function getTemplateTags(doc) {
   while (match = pattern.exec(doc)) {
     var name = match[1];
     if (tags.indexOf(name) >= 0) continue;
-    if (config.reservedTemplateTags.indexOf(name) >= 0) contiue;
+    if (config.reservedTemplateTags.indexOf(name) >= 0) continue;
     tags.push(match[1]);
   }
 
@@ -238,6 +236,80 @@ exports.reservedTemplateTags = reservedTemplateTags;
 
 /***/ }),
 /* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TemplateTagParser", function() { return TemplateTagParser; });
+class TemplateTagParser {
+	
+	constructor(template = draft.content) {
+		this.template = template;
+	}
+
+	get tags() {
+		const reservedTags = [
+			'body',
+			'clipboard',
+			'created_latitude',
+			'created_longitude',
+			'created',
+			'date',
+			'draft_open_url',
+			'draft',
+			'latitude',
+			'longitude',
+			'modified_latitude',
+			'modified_longitude',
+			'modified',
+			'selection_length',
+			'selection_start',
+			'selection',
+			'time',
+			'title',
+			'uuid',
+		];		
+
+		const pattern = /\[\[([\w ]+)\]\]/g;
+		let tags = new Set();
+		let match;
+
+		while (match = pattern.exec(this.template)) {
+			tags.add(match[1]);
+		}
+		
+		return Array.from(tags)
+			.filter(tag => !reservedTags.includes(tag));
+	}
+	
+	ask() {
+		let tags = this.tags;
+		if (tags.length == 0) return true;
+		
+		let prompt = Prompt.create();
+		prompt.title = 'Template Questions';
+		tags.forEach(tag => prompt.addTextField(tag, tag, ''));
+		prompt.addButton('Okay');
+
+		if (!prompt.show()) return false;
+		tags.forEach(tag => {
+			draft.setTemplateTag(tag, prompt.fieldValues[tag]);
+			console.log(`Setting ${tag} to ${prompt.fieldValues[tag]}`);
+		});
+		
+		return true;
+	}
+	
+	parse(str) {
+		let text = draft.processTemplate(str);
+		let html = MultiMarkdown.create().render(text);
+		return { text, html };
+	}
+}
+
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -248,9 +320,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Autotagger = void 0;
 
-var _StreamParser = __webpack_require__(3);
+var _StreamParser = __webpack_require__(4);
 
-var _Symbols = __webpack_require__(4);
+var _Symbols = __webpack_require__(5);
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -384,7 +456,7 @@ function () {
 exports.Autotagger = Autotagger;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -536,7 +608,7 @@ function () {
 exports.StreamParser = StreamParser;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -592,7 +664,7 @@ function () {
     }, {
       symbol: '🗒',
       type: 'notes',
-      format: 'string'
+      format: 'array'
     }, {
       symbol: '🔘',
       type: 'checklistItem',
@@ -665,7 +737,7 @@ function () {
 exports.Symbols = Symbols;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -676,11 +748,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TasksParser = void 0;
 
-var _Symbols = __webpack_require__(4);
+var _Symbols = __webpack_require__(5);
 
-var _StreamParser = __webpack_require__(3);
+var _StreamParser = __webpack_require__(4);
 
-var _Task = __webpack_require__(6);
+var _Task = __webpack_require__(7);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -730,15 +802,16 @@ function () {
               task.addChecklistItem(item[attr]);
               break;
 
+            case 'notes':
+              task.appendNotes(item[attr]);
+              break;
+
             default:
               task[attr] = item[attr];
           }
         });
         return task;
-      }); // Things inserts each task in the array at the top, so
-      // we'll reverse it so it matches the order they were specified.
-
-      tasks.reverse(); // Return an array of Things objects
+      }); // Return an array of Things objects
 
       return tasks.map(function (task) {
         return task.toThingsObject();
@@ -752,7 +825,7 @@ function () {
 exports.TasksParser = TasksParser;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -763,9 +836,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Task = void 0;
 
-var _ThingsDate = __webpack_require__(7);
+var _ThingsDate = __webpack_require__(8);
 
-var _ThingsDateTime = __webpack_require__(8);
+var _ThingsDateTime = __webpack_require__(9);
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -861,6 +934,22 @@ function () {
       })));
     }
     /**
+     * Appends a new line to the notes.
+     * @param {String|String[]} notes - An array or single string of notes
+     */
+
+  }, {
+    key: "appendNotes",
+    value: function appendNotes(notes) {
+      if (typeof notes == 'string') notes = [notes];
+
+      if (this.attributes.notes) {
+        this.attributes.notes += '\n' + notes.join('\n');
+      } else {
+        this.attributes.notes = notes.join('\n');
+      }
+    }
+    /**
      * Export the current to-do, with all defined attributes,
      * as an object to be passed to the things:/// URL scheme.
      * @see {@link https://support.culturedcode.com/customer/en/portal/articles/2803573#json|Things API documentation}
@@ -950,13 +1039,14 @@ function () {
       var autotagged = this._autotagger.parse(value);
 
       if (!autotagged) return;
-      var properties = 'list when reminder deadline notes heading checklistItem';
+      var properties = 'list when reminder deadline heading checklistItem';
       properties.split(' ').forEach(function (property) {
         if (!autotagged[property]) return;
         _this[property] = autotagged[property];
       });
       this.addTags(autotagged.tags || '');
       this.addChecklistItem(autotagged.checklistItem || []);
+      this.appendNotes(autotagged.notes || '');
     }
     /**
      * The start date of the to-do. Values can be "today",
@@ -980,7 +1070,7 @@ function () {
 exports.Task = Task;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1216,7 +1306,7 @@ function () {
 exports.ThingsDate = ThingsDate;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1227,7 +1317,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ThingsDateTime = void 0;
 
-var _ThingsDate2 = __webpack_require__(7);
+var _ThingsDate2 = __webpack_require__(8);
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -1297,7 +1387,7 @@ function (_ThingsDate) {
 exports.ThingsDateTime = ThingsDateTime;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1359,8 +1449,6 @@ function () {
           }
         };
       });
-
-      headings.reverse();
 
       var tasks = this._tasks.map(function (task) {
         task.attributes.list = _this._name;

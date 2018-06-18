@@ -186,7 +186,7 @@ Thingy will scan your document for template tags, and prompt you for
 values before processing. This comes in handy when combined with
 [project templates](#projects) and [date offsets](#dates):
 
-```
+```markdown
 # Pack for trip to [[City]]
 
 Pack luggage for trip to [[City]]

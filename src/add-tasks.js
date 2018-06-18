@@ -1,5 +1,6 @@
 import * as config from './config';
-import { Autotagger } from './lib/Autotagger';
+import { TemplateTagParser } from 'drafts-template-parser';
+import { Autotagger } from './lib/AutoTagger';
 import { TasksParser } from './lib/TasksParser';
 import { Project } from './lib/Project';
 
@@ -8,11 +9,10 @@ let autotagger = new Autotagger(configNote)
 let parser = new TasksParser(autotagger);
 
 let document = getDocument();
-let tags = getTemplateTags(document);
-if (tags.length > 0) {
-	let tagVals = askTemplateQuestions(tags);
-	document = setTemplateTags(document, tagVals);
-}
+let templateParser = new TemplateTagParser(document);
+
+templateParser.ask();
+document = templateParser.parse(document).text;
 
 let data = parser.parse(document);
 

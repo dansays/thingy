@@ -70,7 +70,7 @@ export class Task {
 		let autotagged = this._autotagger.parse(value);
 		if (!autotagged) return;
 
-		const properties = 'list when reminder deadline notes heading checklistItem';
+		const properties = 'list when reminder deadline heading checklistItem';
 		properties.split(' ').forEach(property => {
 			if (!autotagged[property]) return;
 			this[property] = autotagged[property];
@@ -78,6 +78,7 @@ export class Task {
 
 		this.addTags(autotagged.tags || '');
 		this.addChecklistItem(autotagged.checklistItem || []);
+		this.appendNotes(autotagged.notes || '');
 	}
 
 	/**
@@ -125,6 +126,19 @@ export class Task {
 	addTags(tags) {
 		if (typeof tags == 'string') tags = tags.split(',');
 		this.attributes.tags.push(...tags.map(tag => tag.trim()));
+	}
+
+	/**
+	 * Appends a new line to the notes.
+	 * @param {String|String[]} notes - An array or single string of notes
+	 */
+	appendNotes(notes) {
+	    if (typeof notes == 'string') notes = [notes];
+	    if (this.attributes.notes) {
+	        this.attributes.notes += '\n' + notes.join('\n');
+	    } else {
+	        this.attributes.notes = notes.join('\n');
+	    }
 	}
 
 	/**

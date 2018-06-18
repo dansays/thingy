@@ -30,15 +30,12 @@ export class TasksParser {
 				switch(attr) {
 					case 'tags': task.addTags(item[attr]); break;
 					case 'checklistItem': task.addChecklistItem(item[attr]); break;
+					case 'notes': task.appendNotes(item[attr]); break;
 					default: task[attr] = item[attr];
 				}
 			});
 			return task;
 		})
-
-		// Things inserts each task in the array at the top, so
-		// we'll reverse it so it matches the order they were specified.
-		tasks.reverse();
 
 		// Return an array of Things objects
 		return tasks.map(task => task.toThingsObject());

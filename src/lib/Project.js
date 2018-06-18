@@ -14,8 +14,6 @@ export class Project {
 			.filter((elem, pos, arr) => arr.findIndex(item => item.lower == elem.lower) == pos)
 			.map(item => ({ type: "heading", attributes: { title: item.value } }));
 
-		headings.reverse();
-
 		let tasks = this._tasks.map(task => {
 			task.attributes.list = this._name;
 			return task;
